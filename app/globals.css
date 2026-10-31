@@ -1,0 +1,373 @@
+@import "../public/css/ovo-legion.css";
+
+:root {
+  --tokens--background-base: #f2f2f2;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--tokens--background-base, #f2f2f2);
+  color: var(--tokens--text-primary, #000000);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Explicit deck stacking: Card 01 on top peeling down to Card Last */
+.hero-images-container-last {
+  z-index: 1;
+}
+.hero-images-container._04 {
+  z-index: 2;
+}
+.hero-images-container._03 {
+  z-index: 3;
+}
+.hero-images-container._02 {
+  z-index: 4;
+}
+.hero-images-container._01 {
+  z-index: 5;
+}
+
+/* =========================================================================
+   1. SLEEK, LUXURY SLIM NAVBAR (PRECISE 2-LINE BRAND & LUXURY PILL BAR)
+   ========================================================================= */
+.fixed-nav {
+  z-index: 90 !important;
+  position: fixed !important;
+  inset: 0% 0% auto !important;
+  pointer-events: auto !important;
+}
+
+.navbar {
+  z-index: 50 !important;
+  min-height: 58px !important;
+  height: 58px !important;
+  background: rgba(246, 245, 239, 0.94) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  backdrop-filter: blur(16px) !important;
+  border-bottom: 1px solid rgba(20, 26, 18, 0.08) !important;
+  transition: all 0.3s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.container.navbar-container {
+  max-width: 1320px !important;
+  padding: 0 24px !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.navbar-holder {
+  height: 100% !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.navbar-container {
+  height: 100% !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 24px !important;
+}
+
+/* Brand Logo / Wordmark - Exactly 2 clean, unwrapped lines */
+.brand {
+  max-width: none !important;
+  width: auto !important;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  text-decoration: none !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.brand-text-holder {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  white-space: nowrap !important;
+}
+
+.brand-title,
+.brand-title-compact,
+.brand span:first-child {
+  font-family: var(--cd-serif, "Instrument Serif", serif) !important;
+  font-size: 21px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.015em !important;
+  color: #141a12 !important;
+  line-height: 1.15 !important;
+  white-space: nowrap !important;
+  display: block !important;
+}
+
+.brand-subtitle,
+.brand-subtitle-compact,
+.brand span:last-child {
+  font-family: var(--cd-mono, "IBM Plex Mono", monospace) !important;
+  font-size: 8.5px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.16em !important;
+  color: #556050 !important;
+  line-height: 1.15 !important;
+  white-space: nowrap !important;
+  display: block !important;
+  margin-top: 2px !important;
+}
+
+/* Floating Glass Nav Links Pill */
+.nav-links {
+  padding: 4px 8px !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(20, 26, 18, 0.08) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+}
+
+.nav-link {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  padding: 6px 13px !important;
+  color: #2c3327 !important;
+  line-height: 1 !important;
+  opacity: 0.82 !important;
+  border-radius: 9999px !important;
+  transition: all 0.2s ease !important;
+}
+
+.nav-link:hover {
+  opacity: 1 !important;
+  color: #ff282b !important;
+  background: rgba(20, 26, 18, 0.04) !important;
+}
+
+/* Navbar Right Actions (CTA Button + Mobile Toggle) */
+.navbar-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  flex-shrink: 0 !important;
+}
+
+.nav-cta-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 7px 18px !important;
+  background: #141a12 !important;
+  color: #f4f3ea !important;
+  border-radius: 9999px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  text-decoration: none !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 8px rgba(20, 26, 18, 0.12) !important;
+  white-space: nowrap !important;
+}
+
+.nav-cta-button:hover {
+  background: #ff282b !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(255, 40, 43, 0.28) !important;
+}
+
+.nav-cta-dot {
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #ff282b !important;
+  transition: background 0.25s ease !important;
+}
+
+.nav-cta-button:hover .nav-cta-dot {
+  background: #ffffff !important;
+}
+
+/* =========================================================================
+   2. AMENITIES TICKER & RED LINE ACTIVE INTERACTION (NO VOID GAPS)
+   ========================================================================= */
+#amenities {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+#amenities .section-spacing {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+#amenities .line {
+  margin: 0 auto !important;
+}
+
+.skills-holder {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  gap: 48px !important;
+  width: 100% !important;
+  position: relative !important;
+  padding: 40px 0 !important;
+}
+
+.skills-container {
+  position: sticky !important;
+  top: 45% !important;
+  transform: translateY(-50%) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  z-index: 10 !important;
+  padding: 8px 0 !important;
+  white-space: nowrap !important;
+}
+
+.red-line {
+  background-color: #ff282b !important;
+  width: 90px !important;
+  height: 3px !important;
+  border-radius: 2px !important;
+  transition: width 0.3s ease !important;
+}
+
+.skills-scroll-holder {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 28px !important;
+  padding: 0 !important;
+  width: 100% !important;
+  max-width: 650px !important;
+}
+
+.skill-holder {
+  display: flex !important;
+  align-items: center !important;
+  min-height: 52px !important;
+}
+
+.skill {
+  font-size: clamp(26px, 3.8vw, 42px) !important;
+  line-height: 1.15 !important;
+  font-weight: 600 !important;
+  color: rgba(20, 26, 18, 0.30) !important;
+  transition: color 0.22s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease !important;
+  cursor: default !important;
+  user-select: none !important;
+  display: inline-block !important;
+}
+
+.skill.red-active {
+  color: #ff282b !important;
+  transform: translate3d(20px, 0, 0) !important;
+  opacity: 1 !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 1px rgba(255, 40, 43, 0.3) !important;
+}
+
+/* =========================================================================
+   3. CLEAN SINGLE-COLUMN FAQ ACCORDION (No grid stretch, No overlays)
+   ========================================================================= */
+.questions-holder {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  width: 100% !important;
+  max-width: 860px !important;
+  margin: 0 auto !important;
+}
+
+.questions-container {
+  display: flex !important;
+  flex-direction: column !important;
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  padding: 22px 26px !important;
+  border: 1px solid rgba(20, 26, 18, 0.08) !important;
+  cursor: pointer !important;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03) !important;
+}
+
+.questions-container:hover {
+  border-color: rgba(20, 26, 18, 0.22) !important;
+}
+
+.questions-container.is-open {
+  border-color: rgba(255, 40, 43, 0.4) !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06) !important;
+}
+
+.question {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  width: 100% !important;
+  user-select: none !important;
+}
+
+.question-text {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  color: #141a12 !important;
+  line-height: 1.35 !important;
+  margin: 0 !important;
+  flex: 1 !important;
+}
+
+.question-icon {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  filter: invert() !important;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.questions-container.is-open .question-icon {
+  transform: rotate(45deg) !important;
+}
+
+.answer-holder {
+  max-height: 0px !important;
+  opacity: 0 !important;
+  overflow: hidden !important;
+  transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, margin-top 0.3s ease !important;
+  margin-top: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.questions-container.is-open .answer-holder {
+  opacity: 1 !important;
+  margin-top: 14px !important;
+}
+
+.answer-text {
+  font-size: 15px !important;
+  line-height: 1.65 !important;
+  color: #556050 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
