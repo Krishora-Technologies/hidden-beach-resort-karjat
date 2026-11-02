@@ -25,7 +25,7 @@
 
   function initLegionAnimations() {
     initCurtainPreloader();
-    initHeroCardScroll();
+    // initHeroCardScroll is natively managed by React in app/page.jsx
     initHeroMarquee();
     initPartnerMarquee();
     initSplitTextReadingScroll();
@@ -149,13 +149,14 @@
   }
 
   // =========================================================================
-  // 2. 500VH PINNED HERO CARD DECK SCROLL
+  // 2. PINNED HERO CARD DECK SCROLL
   // =========================================================================
   function initHeroCardScroll() {
     const heroWrapper = document.querySelector('.hero-section-wrapper');
     const heroSection = document.querySelector('.hero-section');
     const heroEditorial = document.querySelector('.hero-editorial-top');
     const scrollCueText = document.querySelector('.hero-scroll-cue-text');
+    const villaPills = document.querySelectorAll('.hero-villa-pill');
     const card1 = document.querySelector('.hero-images-container._01');
     const card2 = document.querySelector('.hero-images-container._02');
     const card3 = document.querySelector('.hero-images-container._03');
@@ -164,27 +165,23 @@
 
     if (!heroWrapper || !heroSection) return;
 
-    // Remove any interfering CSS transition during scroll scrubbing
-    const allCards = [card1, card2, card3, card4, cardLast].filter(Boolean);
-    allCards.forEach(c => { c.style.transition = 'none'; });
-
     function onScroll() {
       const rect = heroWrapper.getBoundingClientRect();
       const totalDist = heroWrapper.offsetHeight - window.innerHeight;
       if (totalDist <= 0) return;
 
-      // Calculate progress 0.0 to 1.0 through the 500vh hero section
+      // Calculate progress 0.0 to 1.0 through the hero section
       const progress = Math.max(0, Math.min(1, -rect.top / totalDist));
 
-      // Editorial top header fades and lifts smoothly in initial scrub
+      // 1. Editorial top header fades and lifts smoothly in initial scrub
       if (heroEditorial) {
-        const pHeader = Math.max(0, Math.min(1, progress / 0.12));
+        const pHeader = Math.max(0, Math.min(1, progress / 0.14));
         heroEditorial.style.opacity = (1 - pHeader).toFixed(3);
-        heroEditorial.style.transform = `translate3d(0, ${(-pHeader * 28).toFixed(1)}px, 0)`;
+        heroEditorial.style.transform = `translate3d(0, ${(-pHeader * 32).toFixed(1)}px, 0)`;
         heroEditorial.style.pointerEvents = pHeader >= 0.7 ? 'none' : 'auto';
       }
 
-      // Update dynamic scroll cue tracker
+      // 2. Active villa indicator in bottom dock
       if (scrollCueText) {
         if (progress < 0.22) {
           scrollCueText.textContent = 'Villa 01 / 05 · Riverfront Canopy';
@@ -199,16 +196,10 @@
         }
       }
 
-      // Order of reveal: FIRST TO LAST so every card is visible in sequence:
-      // Card 01 peels away first (z-index 5): progress 0.00 -> 0.25 (revealing Card 02)
-      // Card 02 peels away next  (z-index 4): progress 0.23 -> 0.49 (revealing Card 03)
-      // Card 03 peels away next  (z-index 3): progress 0.47 -> 0.73 (revealing Card 04)
-      // Card 04 peels away next  (z-index 2): progress 0.71 -> 0.95 (revealing Card Last)
-      // Card Last scales smoothly (z-index 1) to anchor the ending
-
+      // 3. 3D Perspective card peeling
       // Card 01 (z-index 5, resting angle 0deg)
       if (card1) {
-        const p1 = Math.max(0, Math.min(1, progress / 0.25));
+        const p1 = Math.max(0, Math.min(1, progress / 0.24));
         const yVal = -p1 * 380;
         const scaleVal = 1 + p1 * 0.12;
         const rotVal = p1 * 6;
@@ -220,7 +211,7 @@
 
       // Card 02 (z-index 4, resting angle +4deg)
       if (card2) {
-        const p2 = Math.max(0, Math.min(1, (progress - 0.23) / 0.26));
+        const p2 = Math.max(0, Math.min(1, (progress - 0.22) / 0.26));
         const yVal = -p2 * 380;
         const scaleVal = 1 + p2 * 0.12;
         const rotVal = 4 + p2 * 8;
@@ -232,7 +223,7 @@
 
       // Card 03 (z-index 3, resting angle -4deg)
       if (card3) {
-        const p3 = Math.max(0, Math.min(1, (progress - 0.47) / 0.26));
+        const p3 = Math.max(0, Math.min(1, (progress - 0.46) / 0.26));
         const yVal = -p3 * 380;
         const scaleVal = 1 + p3 * 0.12;
         const rotVal = -4 - p3 * 8;
@@ -244,7 +235,7 @@
 
       // Card 04 (z-index 2, resting angle -2deg)
       if (card4) {
-        const p4 = Math.max(0, Math.min(1, (progress - 0.71) / 0.25));
+        const p4 = Math.max(0, Math.min(1, (progress - 0.70) / 0.24));
         const yVal = -p4 * 380;
         const scaleVal = 1 + p4 * 0.12;
         const rotVal = -2 + p4 * 8;
@@ -254,9 +245,9 @@
         card4.style.pointerEvents = opVal <= 0.05 ? 'none' : 'auto';
       }
 
-      // Card Last scales into final prominence
+      // Card Last scales into final prominence (z-index 1)
       if (cardLast) {
-        const pLast = Math.max(0, Math.min(1, (progress - 0.7) / 0.3));
+        const pLast = Math.max(0, Math.min(1, (progress - 0.68) / 0.32));
         const scaleLast = 1 + pLast * 0.06;
         cardLast.style.transform = `scale(${scaleLast.toFixed(3)})`;
         cardLast.style.opacity = '1';
@@ -291,14 +282,26 @@
     if (!partnerHolders.length) return;
 
     let partPos = 0;
-    function tickPartners() {
-      partPos -= 0.65;
-      const firstChild = partnerHolders[0] ? partnerHolders[0].firstElementChild : null;
-      const w = firstChild ? firstChild.offsetWidth * 5 : 600;
-      if (Math.abs(partPos) >= w) partPos = 0;
+    let lastTime = performance.now();
+
+    function tickPartners(now) {
+      const currentTime = now || performance.now();
+      const dt = Math.min((currentTime - lastTime) / 1000, 0.05);
+      lastTime = currentTime;
+
+      // Smooth ~45px per second steady translation
+      partPos -= 45 * dt;
+
+      // Wrap seamlessly using full container scrollWidth
+      const totalW = partnerHolders[0] ? partnerHolders[0].scrollWidth : 0;
+      if (totalW > 0 && Math.abs(partPos) >= totalW) {
+        partPos += totalW;
+      }
+
       partnerHolders.forEach(holder => {
-        holder.style.transform = `translate3d(${partPos.toFixed(1)}px, 0, 0)`;
+        holder.style.transform = `translate3d(${partPos.toFixed(2)}px, 0, 0)`;
       });
+
       requestAnimationFrame(tickPartners);
     }
     requestAnimationFrame(tickPartners);
@@ -648,14 +651,52 @@
     const menuButton = document.querySelector('.menu-button');
     const navMenu = document.querySelector('.nav-menu');
     if (menuButton && navMenu) {
-      menuButton.addEventListener('click', function () {
-        const isOpen = navMenu.classList.contains('w--nav-menu-open');
+      function toggleMobileMenu(forceState) {
+        const isOpen = typeof forceState === 'boolean'
+          ? !forceState
+          : (navMenu.classList.contains('is-open') || navMenu.classList.contains('w--nav-menu-open'));
+
         if (isOpen) {
-          navMenu.classList.remove('w--nav-menu-open');
-          menuButton.classList.remove('w--open');
+          navMenu.classList.remove('is-open', 'w--nav-menu-open');
+          navMenu.removeAttribute('data-nav-menu-open');
+          menuButton.classList.remove('is-open', 'w--open');
+          menuButton.setAttribute('aria-expanded', 'false');
+          document.body.classList.remove('mobile-nav-active');
         } else {
-          navMenu.classList.add('w--nav-menu-open');
-          menuButton.classList.add('w--open');
+          navMenu.classList.add('is-open', 'w--nav-menu-open');
+          navMenu.setAttribute('data-nav-menu-open', '');
+          menuButton.classList.add('is-open', 'w--open');
+          menuButton.setAttribute('aria-expanded', 'true');
+          document.body.classList.add('mobile-nav-active');
+        }
+      }
+
+      menuButton.addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleMobileMenu();
+      });
+
+      menuButton.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleMobileMenu();
+        }
+      });
+
+      // Close when clicking any nav link inside drawer
+      const navLinks = navMenu.querySelectorAll('a');
+      navLinks.forEach(link => {
+        link.addEventListener('click', function () {
+          toggleMobileMenu(false);
+        });
+      });
+
+      // Close when tapping outside
+      document.addEventListener('click', function (e) {
+        if (!navMenu.contains(e.target) && !menuButton.contains(e.target)) {
+          if (navMenu.classList.contains('is-open')) {
+            toggleMobileMenu(false);
+          }
         }
       });
     }

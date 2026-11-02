@@ -1,6 +1,113 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
+
 export default function Home() {
+  const heroWrapperRef = useRef(null);
+  const heroEditorialRef = useRef(null);
+  const scrollCueRef = useRef(null);
+  const card1Ref = useRef(null);
+  const card2Ref = useRef(null);
+  const card3Ref = useRef(null);
+  const card4Ref = useRef(null);
+  const cardLastRef = useRef(null);
+
+  useEffect(() => {
+    const wrapper = heroWrapperRef.current;
+    if (!wrapper) return;
+
+    function handleScroll() {
+      const rect = wrapper.getBoundingClientRect();
+      const totalDist = wrapper.offsetHeight - window.innerHeight;
+      if (totalDist <= 0) return;
+
+      const progress = Math.max(0, Math.min(1, -rect.top / totalDist));
+
+      // 1. Editorial header smoothly fades and lifts
+      if (heroEditorialRef.current) {
+        const pHeader = Math.max(0, Math.min(1, progress / 0.14));
+        heroEditorialRef.current.style.opacity = (1 - pHeader).toFixed(3);
+        heroEditorialRef.current.style.transform = `translate3d(0, ${(-pHeader * 32).toFixed(1)}px, 0)`;
+        heroEditorialRef.current.style.pointerEvents = pHeader >= 0.7 ? 'none' : 'auto';
+      }
+
+      // 2. Active villa indicator in bottom dock
+      if (scrollCueRef.current) {
+        if (progress < 0.22) {
+          scrollCueRef.current.textContent = 'Villa 01 / 05 · Riverfront Canopy';
+        } else if (progress < 0.46) {
+          scrollCueRef.current.textContent = 'Villa 02 / 05 · Royal Plunge Pool';
+        } else if (progress < 0.70) {
+          scrollCueRef.current.textContent = 'Villa 03 / 05 · Bali Garden Path';
+        } else if (progress < 0.90) {
+          scrollCueRef.current.textContent = 'Villa 04 / 05 · Master King Suite';
+        } else {
+          scrollCueRef.current.textContent = 'Villa 05 / 05 · Twilight Sunset Haven';
+        }
+      }
+
+      // 3. Card 01 peels away: progress 0.00 -> 0.24 (revealing Card 02)
+      if (card1Ref.current) {
+        const p1 = Math.max(0, Math.min(1, progress / 0.24));
+        const yVal = -p1 * 380;
+        const scaleVal = 1 + p1 * 0.12;
+        const rotVal = p1 * 6;
+        const opVal = Math.max(0, 1 - p1 * 1.5);
+        card1Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
+        card1Ref.current.style.opacity = opVal.toFixed(2);
+        card1Ref.current.style.pointerEvents = opVal <= 0.05 ? 'none' : 'auto';
+      }
+
+      // 4. Card 02 peels away: progress 0.22 -> 0.48 (revealing Card 03)
+      if (card2Ref.current) {
+        const p2 = Math.max(0, Math.min(1, (progress - 0.22) / 0.26));
+        const yVal = -p2 * 380;
+        const scaleVal = 1 + p2 * 0.12;
+        const rotVal = 4 + p2 * 8;
+        const opVal = Math.max(0, 1 - p2 * 1.5);
+        card2Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
+        card2Ref.current.style.opacity = opVal.toFixed(2);
+        card2Ref.current.style.pointerEvents = opVal <= 0.05 ? 'none' : 'auto';
+      }
+
+      // 5. Card 03 peels away: progress 0.46 -> 0.72 (revealing Card 04)
+      if (card3Ref.current) {
+        const p3 = Math.max(0, Math.min(1, (progress - 0.46) / 0.26));
+        const yVal = -p3 * 380;
+        const scaleVal = 1 + p3 * 0.12;
+        const rotVal = -4 - p3 * 8;
+        const opVal = Math.max(0, 1 - p3 * 1.5);
+        card3Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
+        card3Ref.current.style.opacity = opVal.toFixed(2);
+        card3Ref.current.style.pointerEvents = opVal <= 0.05 ? 'none' : 'auto';
+      }
+
+      // 6. Card 04 peels away: progress 0.70 -> 0.94 (revealing Card Last)
+      if (card4Ref.current) {
+        const p4 = Math.max(0, Math.min(1, (progress - 0.70) / 0.24));
+        const yVal = -p4 * 380;
+        const scaleVal = 1 + p4 * 0.12;
+        const rotVal = -2 + p4 * 8;
+        const opVal = Math.max(0, 1 - p4 * 1.5);
+        card4Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
+        card4Ref.current.style.opacity = opVal.toFixed(2);
+        card4Ref.current.style.pointerEvents = opVal <= 0.05 ? 'none' : 'auto';
+      }
+
+      // 7. Card Last scales to anchor
+      if (cardLastRef.current) {
+        const pLast = Math.max(0, Math.min(1, (progress - 0.68) / 0.32));
+        const scaleLast = 1 + pLast * 0.06;
+        cardLastRef.current.style.transform = `scale(${scaleLast.toFixed(3)})`;
+        cardLastRef.current.style.opacity = '1';
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <>
       {/* RESORT OVERVIEW & DETAILED SECTIONS */}
@@ -47,6 +154,14 @@ export default function Home() {
                             <div className="nav-line"></div>
                           </div>
                         </div>
+
+                        {/* Mobile Drawer Quick CTA */}
+                        <div className="mobile-menu-cta-holder">
+                          <a href="#pricing" className="mobile-menu-reserve-btn">
+                            <span>Reserve Your Stay</span>
+                            <div className="nav-cta-dot"></div>
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </nav>
@@ -56,8 +171,12 @@ export default function Home() {
                       <span>Reserve Stay</span>
                       <div className="nav-cta-dot"></div>
                     </a>
-                    <div className="menu-button w-nav-button">
-                      <div className="icon w-icon-nav-menu"></div>
+                    <div role="button" tabIndex={0} aria-label="Toggle navigation menu" className="menu-button w-nav-button">
+                      <div className="hamburger-box">
+                        <span className="hamburger-bar"></span>
+                        <span className="hamburger-bar"></span>
+                        <span className="hamburger-bar"></span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -68,7 +187,7 @@ export default function Home() {
 
                 {/* 500vh HERO CARD DECK SCROLL SECTION */}
         <div className="section hero-showcase-section">
-          <div className="hero-section-wrapper">
+          <div ref={heroWrapperRef} className="hero-section-wrapper">
             <div className="hero-section">
               {/* Ambient Ticker Marquee behind the cards */}
               <div className="hero-text-loop-holder" aria-hidden="true">
@@ -80,42 +199,24 @@ export default function Home() {
                 <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat ✦</div>
               </div>
 
-              {/* EDITORIAL HERO HEADER */}
-              <div className="hero-editorial-top">
-                <div className="hero-editorial-badge-row">
-                  <div className="hero-editorial-badge">
-                    <span className="hero-badge-sparkle">✦</span>
-                    <span>PRIVATE RIVERFRONT SANCTUARY · KARJAT</span>
-                  </div>
-                  <div className="hero-coord-badge">
-                    <span>18°55&apos;N 73°19&apos;E</span>
-                    <span className="hero-coord-sep">·</span>
-                    <span>2 HRS FROM MUMBAI &amp; PUNE</span>
-                  </div>
+              {/* CLEAN EDITORIAL HERO HEADER */}
+              <div ref={heroEditorialRef} className="hero-editorial-top">
+                <div className="hero-editorial-badge">
+                  <span className="hero-badge-sparkle">✦</span>
+                  <span>PRIVATE RIVERFRONT SANCTUARY · KARJAT</span>
                 </div>
 
                 <h1 className="hero-editorial-title">
                   Where Quiet River Waters<br />
                   <span className="hero-title-italic">Embrace Secluded Luxury.</span>
                 </h1>
-
-                <p className="hero-editorial-lead">
-                  Private heated plunge pool villas, Balinese teakwood garden pathways, and authentic twilight skies in the foothills of the Western Ghats.
-                </p>
-
-                <div className="hero-tags-row">
-                  <span className="hero-tag-pill">✦ Heated Plunge Pools</span>
-                  <span className="hero-tag-pill">✦ 100% Pet Friendly</span>
-                  <span className="hero-tag-pill">✦ Riverside Open-Air Dining</span>
-                  <span className="hero-tag-pill">✦ Western Ghats Mountain Vistas</span>
-                </div>
               </div>
 
               <div className="hero-content">
                 {/* 5 Layered Cards Deck: Order peels from Card 01 to Card Last */}
                 <div className="hero-images-holder">
                   {/* Card Last (z-index 1): The authentic sunset cottage with pool and warm lights */}
-                  <div className="hero-images-container-last">
+                  <div ref={cardLastRef} className="hero-images-container-last">
                     <img
                       src="/images/resort-sunset.webp"
                       loading="eager"
@@ -124,17 +225,14 @@ export default function Home() {
                       style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                     />
                     <div className="hero-card-glass-badge">
-                      <div className="hero-card-glass-tag">
-                        <span className="hero-badge-dot"></span>
-                        <span>05 / 05 · SIGNATURE HAVEN</span>
-                      </div>
-                      <div className="hero-card-glass-title">Twilight Sunset Cottage &amp; Pool</div>
-                      <div className="hero-card-glass-desc">Authentic twilight sky over Karjat foothills</div>
+                      <span className="hero-card-badge-num">05</span>
+                      <span className="hero-card-badge-dot">·</span>
+                      <span className="hero-card-badge-title">Twilight Sunset Pool Villa</span>
                     </div>
                   </div>
 
                   {/* Card 01 (z-index 5): Beach canopy & private pool */}
-                  <div className="hero-images-container _01">
+                  <div ref={card1Ref} className="hero-images-container _01">
                     <img
                       src="/images/card-01.jpg"
                       loading="eager"
@@ -143,17 +241,14 @@ export default function Home() {
                       style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                     />
                     <div className="hero-card-glass-badge">
-                      <div className="hero-card-glass-tag">
-                        <span className="hero-badge-dot"></span>
-                        <span>01 / 05 · RIVERFRONT VILLA</span>
-                      </div>
-                      <div className="hero-card-glass-title">Riverfront Canopy Pool Villa</div>
-                      <div className="hero-card-glass-desc">Private plunge pool · Direct river Pej view</div>
+                      <span className="hero-card-badge-num">01</span>
+                      <span className="hero-card-badge-dot">·</span>
+                      <span className="hero-card-badge-title">Riverfront Canopy Pool Villa</span>
                     </div>
                   </div>
 
                   {/* Card 02 (z-index 4): Plunge pool suite */}
-                  <div className="hero-images-container _02">
+                  <div ref={card2Ref} className="hero-images-container _02">
                     <img
                       src="/images/card-02.jpg"
                       loading="eager"
@@ -162,17 +257,14 @@ export default function Home() {
                       style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                     />
                     <div className="hero-card-glass-badge">
-                      <div className="hero-card-glass-tag">
-                        <span className="hero-badge-dot"></span>
-                        <span>02 / 05 · PRIVATE SUITE</span>
-                      </div>
-                      <div className="hero-card-glass-title">Royal Plunge Pool Suite</div>
-                      <div className="hero-card-glass-desc">Sunken seating · Private heated pool</div>
+                      <span className="hero-card-badge-num">02</span>
+                      <span className="hero-card-badge-dot">·</span>
+                      <span className="hero-card-badge-title">Royal Plunge Pool Suite</span>
                     </div>
                   </div>
 
                   {/* Card 03 (z-index 3): Bali walkway & tropical garden */}
-                  <div className="hero-images-container _03">
+                  <div ref={card3Ref} className="hero-images-container _03">
                     <img
                       src="/images/card-03.jpg"
                       loading="eager"
@@ -181,17 +273,14 @@ export default function Home() {
                       style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                     />
                     <div className="hero-card-glass-badge">
-                      <div className="hero-card-glass-tag">
-                        <span className="hero-badge-dot"></span>
-                        <span>03 / 05 · BOTANICAL SANCTUARY</span>
-                      </div>
-                      <div className="hero-card-glass-title">Bali Teakwood Pathway</div>
-                      <div className="hero-card-glass-desc">Lush tropical flora · Secluded bamboo arches</div>
+                      <span className="hero-card-badge-num">03</span>
+                      <span className="hero-card-badge-dot">·</span>
+                      <span className="hero-card-badge-title">Bali Teakwood Pathway</span>
                     </div>
                   </div>
 
                   {/* Card 04 (z-index 2): Luxury bedroom suite */}
-                  <div className="hero-images-container _04">
+                  <div ref={card4Ref} className="hero-images-container _04">
                     <img
                       src="/images/card-04.jpg"
                       loading="eager"
@@ -200,41 +289,26 @@ export default function Home() {
                       style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                     />
                     <div className="hero-card-glass-badge">
-                      <div className="hero-card-glass-tag">
-                        <span className="hero-badge-dot"></span>
-                        <span>04 / 05 · MASTER SUITE</span>
-                      </div>
-                      <div className="hero-card-glass-title">Master King River Suite</div>
-                      <div className="hero-card-glass-desc">Custom teak furniture · Floor-to-ceiling glass</div>
+                      <span className="hero-card-badge-num">04</span>
+                      <span className="hero-card-badge-dot">·</span>
+                      <span className="hero-card-badge-title">Master King River Suite</span>
                     </div>
                   </div>
                 </div>
 
                 {/* BOTTOM HERO DOCK */}
                 <div className="hero-bottom-dock">
-                  <div className="hero-dock-left">
-                    <span className="hero-dock-dot"></span>
-                    <span className="hero-coord-tag">ELEVATION 115M · RIVER PEJ BASIN</span>
-                  </div>
-
-                  <div className="hero-dock-center">
-                    <div className="hero-scroll-cue">
-                      <div className="scroll-mouse-icon">
-                        <div className="scroll-mouse-wheel"></div>
-                      </div>
-                      <span className="hero-scroll-cue-text">Scroll to explore villas 01 → 05</span>
+                  <div className="hero-scroll-cue">
+                    <div className="scroll-mouse-icon">
+                      <div className="scroll-mouse-wheel"></div>
                     </div>
+                    <span ref={scrollCueRef} className="hero-scroll-cue-text">Scroll to explore villas 01 → 05</span>
                   </div>
 
-                  <div className="hero-dock-right">
-                    <a href="#villas" className="button w-inline-block hero-primary-btn">
-                      <div className="red-circle"></div>
-                      <div className="button-text">Explore Villas</div>
-                    </a>
-                    <a href="#pricing" className="hero-secondary-btn">
-                      <span>View Packages</span>
-                    </a>
-                  </div>
+                  <a href="#villas" className="button w-inline-block hero-primary-btn">
+                    <div className="red-circle"></div>
+                    <div className="button-text">Explore Villas</div>
+                  </a>
                 </div>
               </div>
             </div>
@@ -263,43 +337,49 @@ export default function Home() {
 
             <div className="partners-holder">
               <div className="partner-container">
-                <div className="partner" style={{ padding: '0 24px', display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'var(--cd-serif, serif)', fontSize: '24px', fontStyle: 'italic', whiteSpace: 'nowrap', color: '#141a12' }}>✦ Private Riverfront Access</span>
+                <div className="partner">
+                  <span><span className="partner-sparkle">✦</span> Private Riverfront Access</span>
                 </div>
-                <div className="partner" style={{ padding: '0 24px', display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'var(--cd-serif, serif)', fontSize: '24px', fontStyle: 'italic', whiteSpace: 'nowrap', color: '#141a12' }}>✦ Heated Plunge Pools</span>
+                <div className="partner">
+                  <span><span className="partner-sparkle">✦</span> Heated Plunge Pools</span>
                 </div>
-                <div className="partner" style={{ padding: '0 24px', display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'var(--cd-serif, serif)', fontSize: '24px', fontStyle: 'italic', whiteSpace: 'nowrap', color: '#141a12' }}>✦ 100% Pet Friendly</span>
+                <div className="partner">
+                  <span><span className="partner-sparkle">✦</span> 100% Pet Friendly</span>
                 </div>
-                <div className="partner" style={{ padding: '0 24px', display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'var(--cd-serif, serif)', fontSize: '24px', fontStyle: 'italic', whiteSpace: 'nowrap', color: '#141a12' }}>✦ 2 Hrs From Mumbai & Pune</span>
+                <div className="partner">
+                  <span><span className="partner-sparkle">✦</span> 2 Hrs From Mumbai & Pune</span>
                 </div>
-                <div className="partner" style={{ padding: '0 24px', display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'var(--cd-serif, serif)', fontSize: '24px', fontStyle: 'italic', whiteSpace: 'nowrap', color: '#141a12' }}>✦ Farm-To-Table Dining</span>
+                <div className="partner">
+                  <span><span className="partner-sparkle">✦</span> Farm-To-Table Dining</span>
                 </div>
-                <div className="partner" style={{ padding: '0 24px', display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'var(--cd-serif, serif)', fontSize: '24px', fontStyle: 'italic', whiteSpace: 'nowrap', color: '#141a12' }}>✦ Riverside Bonfires</span>
+                <div className="partner">
+                  <span><span className="partner-sparkle">✦</span> Riverside Bonfires</span>
+                </div>
+                <div className="partner">
+                  <span><span className="partner-sparkle">✦</span> Forest Canopy Trails</span>
                 </div>
               </div>
-              <div className="partner-container">
-                <div className="partner" style={{ padding: '0 24px', display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'var(--cd-serif, serif)', fontSize: '24px', fontStyle: 'italic', whiteSpace: 'nowrap', color: '#141a12' }}>✦ Private Riverfront Access</span>
+              <div className="partner-container" aria-hidden="true">
+                <div className="partner">
+                  <span><span className="partner-sparkle">✦</span> Private Riverfront Access</span>
                 </div>
-                <div className="partner" style={{ padding: '0 24px', display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'var(--cd-serif, serif)', fontSize: '24px', fontStyle: 'italic', whiteSpace: 'nowrap', color: '#141a12' }}>✦ Heated Plunge Pools</span>
+                <div className="partner">
+                  <span><span className="partner-sparkle">✦</span> Heated Plunge Pools</span>
                 </div>
-                <div className="partner" style={{ padding: '0 24px', display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'var(--cd-serif, serif)', fontSize: '24px', fontStyle: 'italic', whiteSpace: 'nowrap', color: '#141a12' }}>✦ 100% Pet Friendly</span>
+                <div className="partner">
+                  <span><span className="partner-sparkle">✦</span> 100% Pet Friendly</span>
                 </div>
-                <div className="partner" style={{ padding: '0 24px', display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'var(--cd-serif, serif)', fontSize: '24px', fontStyle: 'italic', whiteSpace: 'nowrap', color: '#141a12' }}>✦ 2 Hrs From Mumbai & Pune</span>
+                <div className="partner">
+                  <span><span className="partner-sparkle">✦</span> 2 Hrs From Mumbai & Pune</span>
                 </div>
-                <div className="partner" style={{ padding: '0 24px', display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'var(--cd-serif, serif)', fontSize: '24px', fontStyle: 'italic', whiteSpace: 'nowrap', color: '#141a12' }}>✦ Farm-To-Table Dining</span>
+                <div className="partner">
+                  <span><span className="partner-sparkle">✦</span> Farm-To-Table Dining</span>
                 </div>
-                <div className="partner" style={{ padding: '0 24px', display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'var(--cd-serif, serif)', fontSize: '24px', fontStyle: 'italic', whiteSpace: 'nowrap', color: '#141a12' }}>✦ Riverside Bonfires</span>
+                <div className="partner">
+                  <span><span className="partner-sparkle">✦</span> Riverside Bonfires</span>
+                </div>
+                <div className="partner">
+                  <span><span className="partner-sparkle">✦</span> Forest Canopy Trails</span>
                 </div>
               </div>
             </div>
@@ -564,11 +644,18 @@ export default function Home() {
 
                 <div className="testimonail-grid">
                   <div className="testimonail-item">
+                    <div className="review-card-header">
+                      <div className="review-stars">
+                        <span>★★★★★</span>
+                        <span className="review-rating-score">5.0</span>
+                      </div>
+                      <span className="review-villa-tag">Canopy Pool Villa</span>
+                    </div>
                     <div className="testimonail">
-                      “The private plunge pool villa right on the river edge was sheer magic. The morning mist and birdsong felt like a remote Bali retreat, just two hours from Mumbai.”
+                      “The private plunge pool villa right on the river edge was sheer magic. The morning mist and birdsong felt like a remote Bali retreat, just two hours from Mumbai. Food and service were phenomenal.”
                     </div>
                     <div className="profile-holder">
-                      <img loading="lazy" src="/images/resort-sunset.webp" alt="Guest" className="profile-image" style={{ objectFit: 'cover' }} />
+                      <img loading="lazy" src="/images/resort-sunset.webp" alt="Guest" className="profile-image" />
                       <div className="profile-content">
                         <div className="profile-title">Aanya & Rohan Sharma</div>
                         <div className="profile-job">Mumbai · Weekend Getaway</div>
@@ -577,37 +664,58 @@ export default function Home() {
                   </div>
 
                   <div className="testimonail-item">
+                    <div className="review-card-header">
+                      <div className="review-stars">
+                        <span>★★★★★</span>
+                        <span className="review-rating-score">5.0</span>
+                      </div>
+                      <span className="review-villa-tag">Family Suite</span>
+                    </div>
                     <div className="testimonail">
-                      “Greenleaf Aqua has outdone themselves. Pristine river, delectable local Maharashtrian & Continental food, and unmatched peace.”
+                      “Greenleaf Aqua has outdone themselves. Pristine river, delectable local Maharashtrian & Continental food, and unmatched peace. Our kids loved the plunge pool and didn't want to leave!”
                     </div>
                     <div className="profile-holder">
-                      <img loading="lazy" src="/images/villa-canopy.jpg" alt="Guest" className="profile-image" style={{ objectFit: 'cover' }} />
+                      <img loading="lazy" src="/images/villa-canopy.jpg" alt="Guest" className="profile-image" />
                       <div className="profile-content">
-                        <div className="profile-title">Vikram Mehta</div>
+                        <div className="profile-title">Vikram & Sunita Mehta</div>
                         <div className="profile-job">Pune · Family Retreat</div>
                       </div>
                     </div>
                   </div>
 
                   <div className="testimonail-item">
+                    <div className="review-card-header">
+                      <div className="review-stars">
+                        <span>★★★★★</span>
+                        <span className="review-rating-score">5.0</span>
+                      </div>
+                      <span className="review-villa-tag">Riverfront Cottage</span>
+                    </div>
                     <div className="testimonail">
-                      “Celebrated our anniversary at the Riverfront Cottage. The sunset over the water is breathtaking, and the bonfire under the stars made it unforgettable.”
+                      “Celebrated our anniversary at the Riverfront Cottage. The sunset over the water is breathtaking, and the private bonfire with stargazing made it completely unforgettable.”
                     </div>
                     <div className="profile-holder">
-                      <img loading="lazy" src="/images/villa-plunge.jpg" alt="Guest" className="profile-image" style={{ objectFit: 'cover' }} />
+                      <img loading="lazy" src="/images/villa-plunge.jpg" alt="Guest" className="profile-image" />
                       <div className="profile-content">
                         <div className="profile-title">Pooja & Kabir Singhania</div>
-                        <div className="profile-job">Thane · Couples Celebration</div>
+                        <div className="profile-job">Thane · Anniversary Stay</div>
                       </div>
                     </div>
                   </div>
 
                   <div className="testimonail-item">
+                    <div className="review-card-header">
+                      <div className="review-stars">
+                        <span>★★★★★</span>
+                        <span className="review-rating-score">5.0</span>
+                      </div>
+                      <span className="review-villa-tag">100% Pet Friendly</span>
+                    </div>
                     <div className="testimonail">
-                      “Best pet-friendly luxury resort near Mumbai. Our golden retriever loved running along the riverside, and the staff treated us like royalty.”
+                      “Best pet-friendly luxury resort near Mumbai. Our golden retriever loved running along the riverside lawns, and the staff treated us like royalty. We’re definitely coming back!”
                     </div>
                     <div className="profile-holder">
-                      <img loading="lazy" src="/images/villa-bali.jpg" alt="Guest" className="profile-image" style={{ objectFit: 'cover' }} />
+                      <img loading="lazy" src="/images/villa-bali.jpg" alt="Guest" className="profile-image" />
                       <div className="profile-content">
                         <div className="profile-title">Dr. Neha Kulkarni</div>
                         <div className="profile-job">Navi Mumbai · Pet Vacation</div>
@@ -616,11 +724,18 @@ export default function Home() {
                   </div>
 
                   <div className="testimonail-item">
+                    <div className="review-card-header">
+                      <div className="review-stars">
+                        <span>★★★★★</span>
+                        <span className="review-rating-score">5.0</span>
+                      </div>
+                      <span className="review-villa-tag">Executive Workation</span>
+                    </div>
                     <div className="testimonail">
-                      “The workation setup is seamless—blazing fast Wi-Fi, peaceful desk views over the river, and taking dips in the plunge pool between meetings.”
+                      “The workation setup is seamless—blazing fast Wi-Fi, peaceful desk views over the river, and taking dips in the plunge pool between meetings. Productive yet deeply relaxing.”
                     </div>
                     <div className="profile-holder">
-                      <img loading="lazy" src="/images/villa-interior.jpg" alt="Guest" className="profile-image" style={{ objectFit: 'cover' }} />
+                      <img loading="lazy" src="/images/villa-interior.jpg" alt="Guest" className="profile-image" />
                       <div className="profile-content">
                         <div className="profile-title">Aditya Sen</div>
                         <div className="profile-job">Tech Founder · 5-Day Workation</div>
@@ -629,11 +744,18 @@ export default function Home() {
                   </div>
 
                   <div className="testimonail-item">
+                    <div className="review-card-header">
+                      <div className="review-stars">
+                        <span>★★★★★</span>
+                        <span className="review-rating-score">5.0</span>
+                      </div>
+                      <span className="review-villa-tag">Riverfront Sanctuary</span>
+                    </div>
                     <div className="testimonail">
-                      “Immaculate hygiene, stunning architecture, and warm hospitality. The sunset views from the cottage deck are truly therapy for the soul.”
+                      “Immaculate hygiene, stunning architecture, and warm hospitality. The sunset views from the cottage deck and fresh farm breakfasts are truly therapy for the soul.”
                     </div>
                     <div className="profile-holder">
-                      <img loading="lazy" src="/images/card-01.jpg" alt="Guest" className="profile-image" style={{ objectFit: 'cover' }} />
+                      <img loading="lazy" src="/images/card-01.jpg" alt="Guest" className="profile-image" />
                       <div className="profile-content">
                         <div className="profile-title">Siddharth & Priya Rao</div>
                         <div className="profile-job">Mumbai · Annual Rejuvenation</div>
