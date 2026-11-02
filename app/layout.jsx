@@ -3,10 +3,10 @@ import '@fontsource/instrument-serif/400.css';
 import '@fontsource/instrument-serif/400-italic.css';
 import '@fontsource-variable/inter';
 import '@fontsource/ibm-plex-mono/500.css';
-import './condensation.css';
 import Script from 'next/script';
 
 export const metadata = {
+  metadataBase: new URL('https://hiddenbeachresortkarjat.com'),
   title: 'Hidden Beach Resort Karjat — By Greenleaf Aqua',
   description:
     'Hidden Beach Resort Karjat by Greenleaf Aqua. A luxury tropical riverside retreat with private villas, heated plunge pools, and untouched nature in the Western Ghats.',
@@ -14,7 +14,7 @@ export const metadata = {
     title: 'Hidden Beach Resort Karjat — By Greenleaf Aqua',
     description:
       'Hidden Beach Resort Karjat by Greenleaf Aqua. A luxury tropical riverside retreat with private villas, heated plunge pools, and untouched nature in the Western Ghats.',
-    images: ['/assets/resort-clear.webp'],
+    images: ['/images/resort-sunset.webp'],
   },
   icons: {
     icon: 'https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d5b0fb5c762915ea264809_Fav.png',

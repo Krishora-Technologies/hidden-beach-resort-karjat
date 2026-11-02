@@ -154,6 +154,8 @@
   function initHeroCardScroll() {
     const heroWrapper = document.querySelector('.hero-section-wrapper');
     const heroSection = document.querySelector('.hero-section');
+    const heroEditorial = document.querySelector('.hero-editorial-top');
+    const scrollCueText = document.querySelector('.hero-scroll-cue-text');
     const card1 = document.querySelector('.hero-images-container._01');
     const card2 = document.querySelector('.hero-images-container._02');
     const card3 = document.querySelector('.hero-images-container._03');
@@ -173,6 +175,29 @@
 
       // Calculate progress 0.0 to 1.0 through the 500vh hero section
       const progress = Math.max(0, Math.min(1, -rect.top / totalDist));
+
+      // Editorial top header fades and lifts smoothly in initial scrub
+      if (heroEditorial) {
+        const pHeader = Math.max(0, Math.min(1, progress / 0.12));
+        heroEditorial.style.opacity = (1 - pHeader).toFixed(3);
+        heroEditorial.style.transform = `translate3d(0, ${(-pHeader * 28).toFixed(1)}px, 0)`;
+        heroEditorial.style.pointerEvents = pHeader >= 0.7 ? 'none' : 'auto';
+      }
+
+      // Update dynamic scroll cue tracker
+      if (scrollCueText) {
+        if (progress < 0.22) {
+          scrollCueText.textContent = 'Villa 01 / 05 · Riverfront Canopy';
+        } else if (progress < 0.46) {
+          scrollCueText.textContent = 'Villa 02 / 05 · Royal Plunge Pool';
+        } else if (progress < 0.70) {
+          scrollCueText.textContent = 'Villa 03 / 05 · Bali Garden Path';
+        } else if (progress < 0.90) {
+          scrollCueText.textContent = 'Villa 04 / 05 · Master King Suite';
+        } else {
+          scrollCueText.textContent = 'Villa 05 / 05 · Twilight Sunset Haven';
+        }
+      }
 
       // Order of reveal: FIRST TO LAST so every card is visible in sequence:
       // Card 01 peels away first (z-index 5): progress 0.00 -> 0.25 (revealing Card 02)

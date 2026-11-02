@@ -1,14 +1,9 @@
 'use client';
 
-import CondensationHero from '@/components/CondensationHero';
-
 export default function Home() {
   return (
     <>
-      {/* 1. INTERACTIVE CONDENSATION HERO (Wiping morning mist, squeegee scrub, reveals sunset resort) */}
-      <CondensationHero />
-
-      {/* 2. RESORT OVERVIEW & DETAILED SECTIONS */}
+      {/* RESORT OVERVIEW & DETAILED SECTIONS */}
       <div id="resort-overview">
         {/* Navigation Bar */}
         <div className="fixed-nav">
@@ -71,18 +66,49 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 500vh HERO CARD DECK SCROLL SECTION */}
-        <div className="section">
+                {/* 500vh HERO CARD DECK SCROLL SECTION */}
+        <div className="section hero-showcase-section">
           <div className="hero-section-wrapper">
             <div className="hero-section">
-              {/* Ticker marquee behind the cards */}
-              <div className="hero-text-loop-holder">
-                <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat</div>
-                <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat</div>
-                <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat</div>
-                <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat</div>
-                <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat</div>
-                <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat</div>
+              {/* Ambient Ticker Marquee behind the cards */}
+              <div className="hero-text-loop-holder" aria-hidden="true">
+                <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat ✦</div>
+                <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat ✦</div>
+                <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat ✦</div>
+                <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat ✦</div>
+                <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat ✦</div>
+                <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat ✦</div>
+              </div>
+
+              {/* EDITORIAL HERO HEADER */}
+              <div className="hero-editorial-top">
+                <div className="hero-editorial-badge-row">
+                  <div className="hero-editorial-badge">
+                    <span className="hero-badge-sparkle">✦</span>
+                    <span>PRIVATE RIVERFRONT SANCTUARY · KARJAT</span>
+                  </div>
+                  <div className="hero-coord-badge">
+                    <span>18°55&apos;N 73°19&apos;E</span>
+                    <span className="hero-coord-sep">·</span>
+                    <span>2 HRS FROM MUMBAI &amp; PUNE</span>
+                  </div>
+                </div>
+
+                <h1 className="hero-editorial-title">
+                  Where Quiet River Waters<br />
+                  <span className="hero-title-italic">Embrace Secluded Luxury.</span>
+                </h1>
+
+                <p className="hero-editorial-lead">
+                  Private heated plunge pool villas, Balinese teakwood garden pathways, and authentic twilight skies in the foothills of the Western Ghats.
+                </p>
+
+                <div className="hero-tags-row">
+                  <span className="hero-tag-pill">✦ Heated Plunge Pools</span>
+                  <span className="hero-tag-pill">✦ 100% Pet Friendly</span>
+                  <span className="hero-tag-pill">✦ Riverside Open-Air Dining</span>
+                  <span className="hero-tag-pill">✦ Western Ghats Mountain Vistas</span>
+                </div>
               </div>
 
               <div className="hero-content">
@@ -97,6 +123,14 @@ export default function Home() {
                       className="hero-image"
                       style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                     />
+                    <div className="hero-card-glass-badge">
+                      <div className="hero-card-glass-tag">
+                        <span className="hero-badge-dot"></span>
+                        <span>05 / 05 · SIGNATURE HAVEN</span>
+                      </div>
+                      <div className="hero-card-glass-title">Twilight Sunset Cottage &amp; Pool</div>
+                      <div className="hero-card-glass-desc">Authentic twilight sky over Karjat foothills</div>
+                    </div>
                   </div>
 
                   {/* Card 01 (z-index 5): Beach canopy & private pool */}
@@ -108,6 +142,14 @@ export default function Home() {
                       className="hero-image"
                       style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                     />
+                    <div className="hero-card-glass-badge">
+                      <div className="hero-card-glass-tag">
+                        <span className="hero-badge-dot"></span>
+                        <span>01 / 05 · RIVERFRONT VILLA</span>
+                      </div>
+                      <div className="hero-card-glass-title">Riverfront Canopy Pool Villa</div>
+                      <div className="hero-card-glass-desc">Private plunge pool · Direct river Pej view</div>
+                    </div>
                   </div>
 
                   {/* Card 02 (z-index 4): Plunge pool suite */}
@@ -119,6 +161,14 @@ export default function Home() {
                       className="hero-image"
                       style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                     />
+                    <div className="hero-card-glass-badge">
+                      <div className="hero-card-glass-tag">
+                        <span className="hero-badge-dot"></span>
+                        <span>02 / 05 · PRIVATE SUITE</span>
+                      </div>
+                      <div className="hero-card-glass-title">Royal Plunge Pool Suite</div>
+                      <div className="hero-card-glass-desc">Sunken seating · Private heated pool</div>
+                    </div>
                   </div>
 
                   {/* Card 03 (z-index 3): Bali walkway & tropical garden */}
@@ -130,6 +180,14 @@ export default function Home() {
                       className="hero-image"
                       style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                     />
+                    <div className="hero-card-glass-badge">
+                      <div className="hero-card-glass-tag">
+                        <span className="hero-badge-dot"></span>
+                        <span>03 / 05 · BOTANICAL SANCTUARY</span>
+                      </div>
+                      <div className="hero-card-glass-title">Bali Teakwood Pathway</div>
+                      <div className="hero-card-glass-desc">Lush tropical flora · Secluded bamboo arches</div>
+                    </div>
                   </div>
 
                   {/* Card 04 (z-index 2): Luxury bedroom suite */}
@@ -141,15 +199,42 @@ export default function Home() {
                       className="hero-image"
                       style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                     />
+                    <div className="hero-card-glass-badge">
+                      <div className="hero-card-glass-tag">
+                        <span className="hero-badge-dot"></span>
+                        <span>04 / 05 · MASTER SUITE</span>
+                      </div>
+                      <div className="hero-card-glass-title">Master King River Suite</div>
+                      <div className="hero-card-glass-desc">Custom teak furniture · Floor-to-ceiling glass</div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="hero-paragraph-holder">
-                  <p className="title-pargraph">Hidden Beach Resort · Greenleaf Aqua</p>
-                  <a href="#villas" className="button w-inline-block">
-                    <div className="red-circle"></div>
-                    <div className="button-text">Explore Villas</div>
-                  </a>
+                {/* BOTTOM HERO DOCK */}
+                <div className="hero-bottom-dock">
+                  <div className="hero-dock-left">
+                    <span className="hero-dock-dot"></span>
+                    <span className="hero-coord-tag">ELEVATION 115M · RIVER PEJ BASIN</span>
+                  </div>
+
+                  <div className="hero-dock-center">
+                    <div className="hero-scroll-cue">
+                      <div className="scroll-mouse-icon">
+                        <div className="scroll-mouse-wheel"></div>
+                      </div>
+                      <span className="hero-scroll-cue-text">Scroll to explore villas 01 → 05</span>
+                    </div>
+                  </div>
+
+                  <div className="hero-dock-right">
+                    <a href="#villas" className="button w-inline-block hero-primary-btn">
+                      <div className="red-circle"></div>
+                      <div className="button-text">Explore Villas</div>
+                    </a>
+                    <a href="#pricing" className="hero-secondary-btn">
+                      <span>View Packages</span>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
