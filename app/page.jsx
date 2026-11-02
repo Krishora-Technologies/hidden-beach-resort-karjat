@@ -16,96 +16,174 @@ export default function Home() {
     const wrapper = heroWrapperRef.current;
     if (!wrapper) return;
 
-    function handleScroll() {
-      const rect = wrapper.getBoundingClientRect();
-      const totalDist = wrapper.offsetHeight - window.innerHeight;
-      if (totalDist <= 0) return;
+    let ticking = false;
+    let wrapperTop = 0;
+    let totalDist = 1;
+    let isMobile = false;
+    let currentCueLabel = '';
 
-      const progress = Math.max(0, Math.min(1, -rect.top / totalDist));
+    function measure() {
+      if (!heroWrapperRef.current) return;
+      const rect = heroWrapperRef.current.getBoundingClientRect();
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      wrapperTop = rect.top + scrollY;
+      totalDist = Math.max(1, heroWrapperRef.current.offsetHeight - window.innerHeight);
+      isMobile = window.innerWidth <= 767;
+    }
+
+    measure();
+    window.addEventListener('resize', measure, { passive: true });
+
+    function updateCards() {
+      ticking = false;
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      const progress = Math.max(0, Math.min(1, (scrollY - wrapperTop) / totalDist));
 
       // 1. Editorial header smoothly fades and lifts
       if (heroEditorialRef.current) {
-        const pHeader = Math.max(0, Math.min(1, progress / 0.14));
-        heroEditorialRef.current.style.opacity = (1 - pHeader).toFixed(3);
-        heroEditorialRef.current.style.transform = `translate3d(0, ${(-pHeader * 32).toFixed(1)}px, 0)`;
-        heroEditorialRef.current.style.pointerEvents = pHeader >= 0.7 ? 'none' : 'auto';
-      }
-
-      // 2. Active villa indicator in bottom dock
-      if (scrollCueRef.current) {
-        if (progress < 0.22) {
-          scrollCueRef.current.textContent = 'Villa 01 / 05 · Riverfront Canopy';
-        } else if (progress < 0.46) {
-          scrollCueRef.current.textContent = 'Villa 02 / 05 · Royal Plunge Pool';
-        } else if (progress < 0.70) {
-          scrollCueRef.current.textContent = 'Villa 03 / 05 · Bali Garden Path';
-        } else if (progress < 0.90) {
-          scrollCueRef.current.textContent = 'Villa 04 / 05 · Master King Suite';
+        if (progress > 0.2) {
+          if (heroEditorialRef.current.style.visibility !== 'hidden') {
+            heroEditorialRef.current.style.visibility = 'hidden';
+            heroEditorialRef.current.style.pointerEvents = 'none';
+          }
         } else {
-          scrollCueRef.current.textContent = 'Villa 05 / 05 · Twilight Sunset Haven';
+          if (heroEditorialRef.current.style.visibility !== 'visible') {
+            heroEditorialRef.current.style.visibility = 'visible';
+          }
+          const pHeader = progress / 0.14;
+          heroEditorialRef.current.style.opacity = (1 - pHeader).toFixed(3);
+          heroEditorialRef.current.style.transform = `translate3d(0, ${(-pHeader * 28).toFixed(1)}px, 0)`;
+          heroEditorialRef.current.style.pointerEvents = pHeader >= 0.7 ? 'none' : 'auto';
         }
       }
 
-      // 3. Card 01 peels away: progress 0.00 -> 0.24 (revealing Card 02)
+      // 2. Active villa indicator in bottom dock (write only when string changes)
+      if (scrollCueRef.current) {
+        let label = 'Villa 01 / 05 · Riverfront Canopy';
+        if (progress >= 0.90) label = 'Villa 05 / 05 · Twilight Sunset Haven';
+        else if (progress >= 0.70) label = 'Villa 04 / 05 · Master King Suite';
+        else if (progress >= 0.46) label = 'Villa 03 / 05 · Bali Garden Path';
+        else if (progress >= 0.22) label = 'Villa 02 / 05 · Royal Plunge Pool';
+
+        if (currentCueLabel !== label) {
+          currentCueLabel = label;
+          scrollCueRef.current.textContent = label;
+        }
+      }
+
+      const travelY = isMobile ? 220 : 380;
+
+      // 3. Card 01 peels away: progress 0.00 -> 0.24
       if (card1Ref.current) {
         const p1 = Math.max(0, Math.min(1, progress / 0.24));
-        const yVal = -p1 * 380;
-        const scaleVal = 1 + p1 * 0.12;
-        const rotVal = p1 * 6;
-        const opVal = Math.max(0, 1 - p1 * 1.5);
-        card1Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
-        card1Ref.current.style.opacity = opVal.toFixed(2);
-        card1Ref.current.style.pointerEvents = opVal <= 0.05 ? 'none' : 'auto';
+        if (p1 >= 1) {
+          if (card1Ref.current.style.visibility !== 'hidden') {
+            card1Ref.current.style.visibility = 'hidden';
+            card1Ref.current.style.pointerEvents = 'none';
+          }
+        } else {
+          if (card1Ref.current.style.visibility !== 'visible') {
+            card1Ref.current.style.visibility = 'visible';
+          }
+          const yVal = -p1 * travelY;
+          const scaleVal = 1 + p1 * 0.10;
+          const rotVal = p1 * (isMobile ? 3 : 6);
+          const opVal = Math.max(0, 1 - p1 * 1.5);
+          card1Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
+          card1Ref.current.style.opacity = opVal.toFixed(2);
+          card1Ref.current.style.pointerEvents = opVal <= 0.05 ? 'none' : 'auto';
+        }
       }
 
-      // 4. Card 02 peels away: progress 0.22 -> 0.48 (revealing Card 03)
+      // 4. Card 02 peels away: progress 0.22 -> 0.48
       if (card2Ref.current) {
         const p2 = Math.max(0, Math.min(1, (progress - 0.22) / 0.26));
-        const yVal = -p2 * 380;
-        const scaleVal = 1 + p2 * 0.12;
-        const rotVal = 4 + p2 * 8;
-        const opVal = Math.max(0, 1 - p2 * 1.5);
-        card2Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
-        card2Ref.current.style.opacity = opVal.toFixed(2);
-        card2Ref.current.style.pointerEvents = opVal <= 0.05 ? 'none' : 'auto';
+        if (p2 >= 1) {
+          if (card2Ref.current.style.visibility !== 'hidden') {
+            card2Ref.current.style.visibility = 'hidden';
+            card2Ref.current.style.pointerEvents = 'none';
+          }
+        } else {
+          if (card2Ref.current.style.visibility !== 'visible') {
+            card2Ref.current.style.visibility = 'visible';
+          }
+          const yVal = -p2 * travelY;
+          const scaleVal = 1 + p2 * 0.10;
+          const rotVal = (isMobile ? 2 : 4) + p2 * (isMobile ? 4 : 8);
+          const opVal = Math.max(0, 1 - p2 * 1.5);
+          card2Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
+          card2Ref.current.style.opacity = opVal.toFixed(2);
+          card2Ref.current.style.pointerEvents = opVal <= 0.05 ? 'none' : 'auto';
+        }
       }
 
-      // 5. Card 03 peels away: progress 0.46 -> 0.72 (revealing Card 04)
+      // 5. Card 03 peels away: progress 0.46 -> 0.72
       if (card3Ref.current) {
         const p3 = Math.max(0, Math.min(1, (progress - 0.46) / 0.26));
-        const yVal = -p3 * 380;
-        const scaleVal = 1 + p3 * 0.12;
-        const rotVal = -4 - p3 * 8;
-        const opVal = Math.max(0, 1 - p3 * 1.5);
-        card3Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
-        card3Ref.current.style.opacity = opVal.toFixed(2);
-        card3Ref.current.style.pointerEvents = opVal <= 0.05 ? 'none' : 'auto';
+        if (p3 >= 1) {
+          if (card3Ref.current.style.visibility !== 'hidden') {
+            card3Ref.current.style.visibility = 'hidden';
+            card3Ref.current.style.pointerEvents = 'none';
+          }
+        } else {
+          if (card3Ref.current.style.visibility !== 'visible') {
+            card3Ref.current.style.visibility = 'visible';
+          }
+          const yVal = -p3 * travelY;
+          const scaleVal = 1 + p3 * 0.10;
+          const rotVal = -(isMobile ? 2 : 4) - p3 * (isMobile ? 4 : 8);
+          const opVal = Math.max(0, 1 - p3 * 1.5);
+          card3Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
+          card3Ref.current.style.opacity = opVal.toFixed(2);
+          card3Ref.current.style.pointerEvents = opVal <= 0.05 ? 'none' : 'auto';
+        }
       }
 
-      // 6. Card 04 peels away: progress 0.70 -> 0.94 (revealing Card Last)
+      // 6. Card 04 peels away: progress 0.70 -> 0.94
       if (card4Ref.current) {
         const p4 = Math.max(0, Math.min(1, (progress - 0.70) / 0.24));
-        const yVal = -p4 * 380;
-        const scaleVal = 1 + p4 * 0.12;
-        const rotVal = -2 + p4 * 8;
-        const opVal = Math.max(0, 1 - p4 * 1.5);
-        card4Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
-        card4Ref.current.style.opacity = opVal.toFixed(2);
-        card4Ref.current.style.pointerEvents = opVal <= 0.05 ? 'none' : 'auto';
+        if (p4 >= 1) {
+          if (card4Ref.current.style.visibility !== 'hidden') {
+            card4Ref.current.style.visibility = 'hidden';
+            card4Ref.current.style.pointerEvents = 'none';
+          }
+        } else {
+          if (card4Ref.current.style.visibility !== 'visible') {
+            card4Ref.current.style.visibility = 'visible';
+          }
+          const yVal = -p4 * travelY;
+          const scaleVal = 1 + p4 * 0.10;
+          const rotVal = -(isMobile ? 1 : 2) + p4 * (isMobile ? 4 : 8);
+          const opVal = Math.max(0, 1 - p4 * 1.5);
+          card4Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
+          card4Ref.current.style.opacity = opVal.toFixed(2);
+          card4Ref.current.style.pointerEvents = opVal <= 0.05 ? 'none' : 'auto';
+        }
       }
 
-      // 7. Card Last scales to anchor
+      // 7. Card Last scales into prominence
       if (cardLastRef.current) {
         const pLast = Math.max(0, Math.min(1, (progress - 0.68) / 0.32));
-        const scaleLast = 1 + pLast * 0.06;
-        cardLastRef.current.style.transform = `scale(${scaleLast.toFixed(3)})`;
+        const scaleLast = 1 + pLast * 0.05;
+        cardLastRef.current.style.transform = `scale(${scaleLast.toFixed(3)}) translateZ(0)`;
         cardLastRef.current.style.opacity = '1';
       }
     }
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
+    function onScroll() {
+      if (!ticking) {
+        requestAnimationFrame(updateCards);
+        ticking = true;
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    updateCards();
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', measure);
+    };
   }, []);
 
   return (
@@ -154,14 +232,6 @@ export default function Home() {
                             <div className="nav-line"></div>
                           </div>
                         </div>
-
-                        {/* Mobile Drawer Quick CTA */}
-                        <div className="mobile-menu-cta-holder">
-                          <a href="#pricing" className="mobile-menu-reserve-btn">
-                            <span>Reserve Your Stay</span>
-                            <div className="nav-cta-dot"></div>
-                          </a>
-                        </div>
                       </div>
                     </div>
                   </nav>
@@ -171,13 +241,6 @@ export default function Home() {
                       <span>Reserve Stay</span>
                       <div className="nav-cta-dot"></div>
                     </a>
-                    <div role="button" tabIndex={0} aria-label="Toggle navigation menu" className="menu-button w-nav-button">
-                      <div className="hamburger-box">
-                        <span className="hamburger-bar"></span>
-                        <span className="hamburger-bar"></span>
-                        <span className="hamburger-bar"></span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -567,11 +630,6 @@ export default function Home() {
                   <div className="skill-holder"><div className="skill">High-Speed Wi-Fi Workation</div></div>
                   <div className="skill-holder"><div className="skill">Outdoor Jacuzzis</div></div>
                   <div className="skill-holder"><div className="skill">24/7 Resort Concierge</div></div>
-                  <div className="skill-holder"><div className="skill">Private Plunge Pools</div></div>
-                  <div className="skill-holder"><div className="skill">Riverside Kayaking</div></div>
-                  <div className="skill-holder"><div className="skill">Stargazing Deck</div></div>
-                  <div className="skill-holder"><div className="skill">Open-Air Movie Nights</div></div>
-                  <div className="skill-holder"><div className="skill">Barbeque & Bonfires</div></div>
                 </div>
               </div>
             </div>

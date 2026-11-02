@@ -266,10 +266,19 @@
     if (!heroHolder) return;
 
     let heroPos = 0;
+    let w = heroHolder.firstElementChild ? heroHolder.firstElementChild.offsetWidth : 400;
+
+    window.addEventListener('resize', () => {
+      w = heroHolder.firstElementChild ? heroHolder.firstElementChild.offsetWidth : 400;
+    }, { passive: true });
+
     function tickHero() {
+      // Pause ticker calculation entirely on mobile to eliminate GPU contention during card scroll
+      if (window.innerWidth <= 767) {
+        requestAnimationFrame(tickHero);
+        return;
+      }
       heroPos -= 0.85;
-      const child = heroHolder.firstElementChild;
-      const w = child ? child.offsetWidth : 400;
       if (Math.abs(heroPos) >= w) heroPos = 0;
       heroHolder.style.transform = `translate3d(${heroPos.toFixed(1)}px, 0, 0)`;
       requestAnimationFrame(tickHero);
@@ -283,6 +292,11 @@
 
     let partPos = 0;
     let lastTime = performance.now();
+    let totalW = partnerHolders[0] ? partnerHolders[0].scrollWidth : 0;
+
+    window.addEventListener('resize', () => {
+      totalW = partnerHolders[0] ? partnerHolders[0].scrollWidth : 0;
+    }, { passive: true });
 
     function tickPartners(now) {
       const currentTime = now || performance.now();
@@ -292,8 +306,7 @@
       // Smooth ~45px per second steady translation
       partPos -= 45 * dt;
 
-      // Wrap seamlessly using full container scrollWidth
-      const totalW = partnerHolders[0] ? partnerHolders[0].scrollWidth : 0;
+      // Wrap seamlessly using cached container scrollWidth (zero forced reflows)
       if (totalW > 0 && Math.abs(partPos) >= totalW) {
         partPos += totalW;
       }
@@ -513,14 +526,36 @@
   function initSkillsScroll() {
     const redLine = document.querySelector('.red-line');
     const skillHolders = document.querySelectorAll('.skill-holder');
-    if (!redLine || !skillHolders.length) return;
+    const amenitiesSection = document.getElementById('amenities') || document.querySelector('.skills-holder');
+    if (!skillHolders.length) return;
 
     let ticking = false;
 
     function updateActiveAmenity() {
-      const lineRect = redLine.getBoundingClientRect();
-      const lineCenterY = lineRect.top + lineRect.height / 2;
+      // 1. Guard: If amenities section is completely outside the viewport, remove all active highlights
+      if (amenitiesSection) {
+        const secRect = amenitiesSection.getBoundingClientRect();
+        if (secRect.bottom < 0 || secRect.top > window.innerHeight) {
+          skillHolders.forEach(holder => {
+            const skill = holder.querySelector('.skill');
+            if (skill) skill.classList.remove('red-active');
+          });
+          ticking = false;
+          return;
+        }
+      }
 
+      // 2. Calculate the target indicator Y line (viewport coordinate)
+      let lineCenterY = window.innerHeight * 0.45;
+      if (redLine) {
+        const lineRect = redLine.getBoundingClientRect();
+        // If the redLine element is currently in view, track its exact center
+        if (lineRect.top > -50 && lineRect.bottom < window.innerHeight + 50) {
+          lineCenterY = lineRect.top + lineRect.height / 2;
+        }
+      }
+
+      // 3. Find the single closest amenity to this indicator line
       let closestSkill = null;
       let minDistance = Infinity;
 
@@ -532,20 +567,21 @@
         const holderCenterY = rect.top + rect.height / 2;
         const dist = Math.abs(holderCenterY - lineCenterY);
 
-        // Check if the red line aligns with this item
-        if (lineCenterY >= rect.top - 14 && lineCenterY <= rect.bottom + 14) {
-          if (dist < minDistance) {
-            minDistance = dist;
-            closestSkill = skill;
-          }
+        if (dist < minDistance) {
+          minDistance = dist;
+          closestSkill = skill;
         }
       });
+
+      // 4. Threshold catchment (within 85px on mobile, 110px on desktop)
+      const isMobile = window.innerWidth <= 767;
+      const maxDistance = isMobile ? 85 : 110;
 
       skillHolders.forEach(holder => {
         const skill = holder.querySelector('.skill');
         if (!skill) return;
 
-        if (skill === closestSkill) {
+        if (skill === closestSkill && minDistance <= maxDistance) {
           skill.classList.add('red-active');
         } else {
           skill.classList.remove('red-active');
