@@ -2,73 +2,128 @@
 
 import { useEffect, useRef } from 'react';
 
-const skills = [
-  'Webflow Developer',
-  'Web Designer',
-  'Content Writter',
-  'Video Creator',
-  'Visual Editor',
-  'Photoshoping',
-  'Animator',
-  'Designer',
-  'Motion Designer',
-  'Photo Editor',
-  'Web Designer',
-  'UI/UX Designer',
-  'Movie Maker',
-  'Webflow Developer',
-  'Web Designer',
-  'Content Writter',
-  'Video Creator',
-  'Visual Editor',
-  'Photoshoping',
+const amenities = [
+  'Private Plunge Pools',
+  'Riverside Kayaking',
+  'Stargazing Deck',
+  'Open-Air Movie Nights',
+  'Barbeque & Bonfires',
+  'Farm-Fresh Gourmet Dining',
+  'Pet-Friendly Haven',
+  'Balinese Garden Pathways',
+  'Forest Nature Trails',
+  'High-Speed Wi-Fi Workation',
+  'Outdoor Jacuzzis',
+  '24/7 Resort Concierge',
 ];
 
 export default function SkillsSection() {
-  const scrollHolderRef = useRef(null);
+  const sectionRef = useRef(null);
+  const redLineRef = useRef(null);
+  const skillHoldersRef = useRef([]);
 
   useEffect(() => {
-    let pos = 0;
-    let animId;
-    const el = scrollHolderRef.current;
-    if (!el) return;
+    let ticking = false;
 
-    function tick() {
-      pos -= 0.7;
-      const child = el.firstElementChild;
-      const w = child ? child.offsetWidth * 5 : 600;
-      if (Math.abs(pos) >= w) pos = 0;
-      el.style.transform = `translate3d(${pos.toFixed(1)}px, 0, 0)`;
-      animId = requestAnimationFrame(tick);
+    function updateActiveAmenity() {
+      const sec = sectionRef.current;
+      const redLine = redLineRef.current;
+      if (!sec) return;
+
+      const secRect = sec.getBoundingClientRect();
+      if (secRect.bottom < 0 || secRect.top > window.innerHeight) {
+        skillHoldersRef.current.forEach((el) => {
+          if (!el) return;
+          const skill = el.querySelector('.skill');
+          if (skill) skill.classList.remove('red-active');
+        });
+        ticking = false;
+        return;
+      }
+
+      let lineCenterY = window.innerHeight * 0.45;
+      if (redLine) {
+        const lineRect = redLine.getBoundingClientRect();
+        if (lineRect.top > -50 && lineRect.bottom < window.innerHeight + 50) {
+          lineCenterY = lineRect.top + lineRect.height / 2;
+        }
+      }
+
+      let closestSkill = null;
+      let minDistance = Infinity;
+
+      skillHoldersRef.current.forEach((holder) => {
+        if (!holder) return;
+        const skill = holder.querySelector('.skill');
+        if (!skill) return;
+
+        const rect = holder.getBoundingClientRect();
+        const holderCenterY = rect.top + rect.height / 2;
+        const dist = Math.abs(holderCenterY - lineCenterY);
+
+        if (dist < minDistance) {
+          minDistance = dist;
+          closestSkill = skill;
+        }
+      });
+
+      const isMobile = window.innerWidth <= 767;
+      const maxDistance = isMobile ? 85 : 110;
+
+      skillHoldersRef.current.forEach((holder) => {
+        if (!holder) return;
+        const skill = holder.querySelector('.skill');
+        if (!skill) return;
+
+        if (skill === closestSkill && minDistance <= maxDistance) {
+          skill.classList.add('red-active');
+        } else {
+          skill.classList.remove('red-active');
+        }
+      });
+
+      ticking = false;
     }
-    animId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animId);
+
+    function onScrollOrResize() {
+      if (!ticking) {
+        requestAnimationFrame(updateActiveAmenity);
+        ticking = true;
+      }
+    }
+
+    window.addEventListener('scroll', onScrollOrResize, { passive: true });
+    window.addEventListener('resize', onScrollOrResize, { passive: true });
+    updateActiveAmenity();
+
+    return () => {
+      window.removeEventListener('scroll', onScrollOrResize);
+      window.removeEventListener('resize', onScrollOrResize);
+    };
   }, []);
 
   return (
-    <div className="section">
+    <div id="amenities" ref={sectionRef} className="section">
       <div className="section-spacing no-margin-bot">
         <div className="line" />
         <div className="container">
-          <div className="skills-holder" style={{ overflow: 'hidden' }}>
-            <div id="w-node-_5e2b29f7-9294-ecc8-1791-8cf29f210c12-650a2375" className="skills-container">
-              <div className="h6-style">Skills </div>
-              <div className="red-line" />
+          <div className="skills-holder">
+            <div
+              id="w-node-_5e2b29f7-9294-ecc8-1791-8cf29f210c12-650a2375"
+              className="skills-container"
+            >
+              <div className="h6-style">Amenities</div>
+              <div ref={redLineRef} className="red-line" />
             </div>
 
-            <div
-              ref={scrollHolderRef}
-              className="skills-scroll-holder"
-              style={{ display: 'flex', whiteSpace: 'nowrap' }}
-            >
-              {skills.map((skill, idx) => (
-                <div key={idx} className="skill-holder">
-                  <div className="skill">{skill}</div>
-                </div>
-              ))}
-              {skills.map((skill, idx) => (
-                <div key={`dup-${idx}`} className="skill-holder">
-                  <div className="skill">{skill}</div>
+            <div className="skills-scroll-holder">
+              {amenities.map((item, idx) => (
+                <div
+                  key={idx}
+                  ref={(el) => (skillHoldersRef.current[idx] = el)}
+                  className="skill-holder"
+                >
+                  <div className="skill">{item}</div>
                 </div>
               ))}
             </div>
@@ -79,4 +134,3 @@ export default function SkillsSection() {
     </div>
   );
 }
-

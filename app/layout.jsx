@@ -3,7 +3,6 @@ import '@fontsource/instrument-serif/400.css';
 import '@fontsource/instrument-serif/400-italic.css';
 import '@fontsource-variable/inter';
 import '@fontsource/ibm-plex-mono/500.css';
-import Script from 'next/script';
 
 export const metadata = {
   metadataBase: new URL('https://hiddenbeachresortkarjat.com'),
@@ -39,7 +38,6 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         {children}
-        <Script src="/js/legion-interactions.js" strategy="afterInteractive" />
       </body>
     </html>
   );

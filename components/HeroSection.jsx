@@ -1,211 +1,355 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
 
 export default function HeroSection() {
-  const wrapperRef = useRef(null);
-  const card4Ref = useRef(null);
-  const card3Ref = useRef(null);
-  const card2Ref = useRef(null);
+  const heroWrapperRef = useRef(null);
+  const heroEditorialRef = useRef(null);
+  const scrollCueRef = useRef(null);
   const card1Ref = useRef(null);
+  const card2Ref = useRef(null);
+  const card3Ref = useRef(null);
+  const card4Ref = useRef(null);
   const cardLastRef = useRef(null);
-  const marqueeRef = useRef(null);
   const [btnHover, setBtnHover] = useState(false);
 
-  // 1. Continuous Marquee Ticker
   useEffect(() => {
-    let marqueePos = 0;
-    let animId;
-    const el = marqueeRef.current;
-    if (!el) return;
+    const wrapper = heroWrapperRef.current;
+    if (!wrapper) return;
 
-    function tick() {
-      marqueePos -= 0.85;
-      const child = el.firstElementChild;
-      const w = child ? child.offsetWidth : 450;
-      if (Math.abs(marqueePos) >= w) marqueePos = 0;
-      el.style.transform = `translate3d(${marqueePos.toFixed(1)}px, 0, 0)`;
-      animId = requestAnimationFrame(tick);
+    let ticking = false;
+    let wrapperTop = 0;
+    let totalDist = 1;
+    let isMobile = false;
+    let currentCueLabel = '';
+
+    function measure() {
+      if (!heroWrapperRef.current) return;
+      const rect = heroWrapperRef.current.getBoundingClientRect();
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      wrapperTop = rect.top + scrollY;
+      totalDist = Math.max(1, heroWrapperRef.current.offsetHeight - window.innerHeight);
+      isMobile = window.innerWidth <= 767;
     }
-    animId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animId);
-  }, []);
 
-  // 2. 500vh Card Scrub Interaction
-  useEffect(() => {
-    function handleScroll() {
-      const wrapper = wrapperRef.current;
-      if (!wrapper) return;
+    measure();
+    window.addEventListener('resize', measure, { passive: true });
 
-      const rect = wrapper.getBoundingClientRect();
-      const totalDist = wrapper.offsetHeight - window.innerHeight;
-      if (totalDist <= 0) return;
+    function updateCards() {
+      ticking = false;
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      const progress = Math.max(0, Math.min(1, (scrollY - wrapperTop) / totalDist));
 
-      const progress = Math.max(0, Math.min(1, -rect.top / totalDist));
-
-      // Card 04 peels away: progress 0.00 -> 0.25
-      if (card4Ref.current) {
-        const p4 = Math.max(0, Math.min(1, progress / 0.25));
-        const yVal = -p4 * 340;
-        const scaleVal = 1 + p4 * 0.15;
-        const rotVal = -2 + p4 * 8;
-        const opVal = Math.max(0, 1 - p4 * 1.5);
-        card4Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
-        card4Ref.current.style.opacity = opVal.toFixed(2);
+      // 1. Editorial header smoothly fades and lifts
+      if (heroEditorialRef.current) {
+        if (progress > 0.2) {
+          if (heroEditorialRef.current.style.visibility !== 'hidden') {
+            heroEditorialRef.current.style.visibility = 'hidden';
+            heroEditorialRef.current.style.pointerEvents = 'none';
+          }
+        } else {
+          if (heroEditorialRef.current.style.visibility !== 'visible') {
+            heroEditorialRef.current.style.visibility = 'visible';
+          }
+          const pHeader = progress / 0.14;
+          heroEditorialRef.current.style.opacity = (1 - pHeader).toFixed(3);
+          heroEditorialRef.current.style.transform = `translate3d(0, ${(-pHeader * 28).toFixed(1)}px, 0)`;
+          heroEditorialRef.current.style.pointerEvents = pHeader >= 0.7 ? 'none' : 'auto';
+        }
       }
 
-      // Card 03 peels away: progress 0.22 -> 0.50
-      if (card3Ref.current) {
-        const p3 = Math.max(0, Math.min(1, (progress - 0.22) / 0.25));
-        const yVal = -p3 * 340;
-        const scaleVal = 1 + p3 * 0.15;
-        const rotVal = -4 - p3 * 8;
-        const opVal = Math.max(0, 1 - p3 * 1.5);
-        card3Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
-        card3Ref.current.style.opacity = opVal.toFixed(2);
+      // 2. Active villa indicator in bottom dock
+      if (scrollCueRef.current) {
+        let label = 'Villa 01 / 05 · Riverfront Canopy';
+        if (progress >= 0.90) label = 'Villa 05 / 05 · Twilight Sunset Haven';
+        else if (progress >= 0.70) label = 'Villa 04 / 05 · Master King Suite';
+        else if (progress >= 0.46) label = 'Villa 03 / 05 · Bali Garden Path';
+        else if (progress >= 0.22) label = 'Villa 02 / 05 · Royal Plunge Pool';
+
+        if (currentCueLabel !== label) {
+          currentCueLabel = label;
+          scrollCueRef.current.textContent = label;
+        }
       }
 
-      // Card 02 peels away: progress 0.47 -> 0.75
-      if (card2Ref.current) {
-        const p2 = Math.max(0, Math.min(1, (progress - 0.47) / 0.25));
-        const yVal = -p2 * 340;
-        const scaleVal = 1 + p2 * 0.15;
-        const rotVal = 4 + p2 * 8;
-        const opVal = Math.max(0, 1 - p2 * 1.5);
-        card2Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
-        card2Ref.current.style.opacity = opVal.toFixed(2);
-      }
+      const travelY = isMobile ? 220 : 380;
 
-      // Card 01 peels away: progress 0.72 -> 1.00
+      // 3. Card 01 peels away: progress 0.00 -> 0.24
       if (card1Ref.current) {
-        const p1 = Math.max(0, Math.min(1, (progress - 0.72) / 0.25));
-        const yVal = -p1 * 340;
-        const scaleVal = 1 + p1 * 0.15;
-        const rotVal = p1 * 6;
-        const opVal = Math.max(0, 1 - p1 * 1.5);
-        card1Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
-        card1Ref.current.style.opacity = opVal.toFixed(2);
+        const p1 = Math.max(0, Math.min(1, progress / 0.24));
+        if (p1 >= 1) {
+          if (card1Ref.current.style.visibility !== 'hidden') {
+            card1Ref.current.style.visibility = 'hidden';
+            card1Ref.current.style.pointerEvents = 'none';
+          }
+        } else {
+          if (card1Ref.current.style.visibility !== 'visible') {
+            card1Ref.current.style.visibility = 'visible';
+          }
+          const yVal = -p1 * travelY;
+          const scaleVal = 1 + p1 * 0.10;
+          const rotVal = p1 * (isMobile ? 3 : 6);
+          const opVal = Math.max(0, 1 - p1 * 1.5);
+          card1Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
+          card1Ref.current.style.opacity = opVal.toFixed(2);
+          card1Ref.current.style.pointerEvents = opVal <= 0.05 ? 'none' : 'auto';
+        }
       }
 
-      // Card Last zooms subtly
+      // 4. Card 02 peels away: progress 0.22 -> 0.48
+      if (card2Ref.current) {
+        const p2 = Math.max(0, Math.min(1, (progress - 0.22) / 0.26));
+        if (p2 <= 0) {
+          card2Ref.current.style.visibility = 'visible';
+          card2Ref.current.style.transform = 'translate3d(0, 0, 0) scale(1) rotate(0deg)';
+          card2Ref.current.style.opacity = '1';
+          card2Ref.current.style.pointerEvents = 'auto';
+        } else if (p2 >= 1) {
+          if (card2Ref.current.style.visibility !== 'hidden') {
+            card2Ref.current.style.visibility = 'hidden';
+            card2Ref.current.style.pointerEvents = 'none';
+          }
+        } else {
+          if (card2Ref.current.style.visibility !== 'visible') {
+            card2Ref.current.style.visibility = 'visible';
+          }
+          const yVal = -p2 * travelY;
+          const scaleVal = 1 + p2 * 0.10;
+          const rotVal = -p2 * (isMobile ? 2 : 5);
+          const opVal = Math.max(0, 1 - p2 * 1.5);
+          card2Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
+          card2Ref.current.style.opacity = opVal.toFixed(2);
+          card2Ref.current.style.pointerEvents = opVal <= 0.05 ? 'none' : 'auto';
+        }
+      }
+
+      // 5. Card 03 peels away: progress 0.46 -> 0.72
+      if (card3Ref.current) {
+        const p3 = Math.max(0, Math.min(1, (progress - 0.46) / 0.26));
+        if (p3 <= 0) {
+          card3Ref.current.style.visibility = 'visible';
+          card3Ref.current.style.transform = 'translate3d(0, 0, 0) scale(1) rotate(0deg)';
+          card3Ref.current.style.opacity = '1';
+          card3Ref.current.style.pointerEvents = 'auto';
+        } else if (p3 >= 1) {
+          if (card3Ref.current.style.visibility !== 'hidden') {
+            card3Ref.current.style.visibility = 'hidden';
+            card3Ref.current.style.pointerEvents = 'none';
+          }
+        } else {
+          if (card3Ref.current.style.visibility !== 'visible') {
+            card3Ref.current.style.visibility = 'visible';
+          }
+          const yVal = -p3 * travelY;
+          const scaleVal = 1 + p3 * 0.10;
+          const rotVal = (isMobile ? 1 : 2) + p3 * (isMobile ? 3 : 5);
+          const opVal = Math.max(0, 1 - p3 * 1.5);
+          card3Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
+          card3Ref.current.style.opacity = opVal.toFixed(2);
+          card3Ref.current.style.pointerEvents = opVal <= 0.05 ? 'none' : 'auto';
+        }
+      }
+
+      // 6. Card 04 peels away: progress 0.70 -> 0.94
+      if (card4Ref.current) {
+        const p4 = Math.max(0, Math.min(1, (progress - 0.70) / 0.24));
+        if (p4 <= 0) {
+          card4Ref.current.style.visibility = 'visible';
+          card4Ref.current.style.transform = 'translate3d(0, 0, 0) scale(1) rotate(0deg)';
+          card4Ref.current.style.opacity = '1';
+          card4Ref.current.style.pointerEvents = 'auto';
+        } else if (p4 >= 1) {
+          if (card4Ref.current.style.visibility !== 'hidden') {
+            card4Ref.current.style.visibility = 'hidden';
+            card4Ref.current.style.pointerEvents = 'none';
+          }
+        } else {
+          if (card4Ref.current.style.visibility !== 'visible') {
+            card4Ref.current.style.visibility = 'visible';
+          }
+          const yVal = -p4 * travelY;
+          const scaleVal = 1 + p4 * 0.10;
+          const rotVal = -(isMobile ? 1 : 2) + p4 * (isMobile ? 4 : 8);
+          const opVal = Math.max(0, 1 - p4 * 1.5);
+          card4Ref.current.style.transform = `translate3d(0, ${yVal.toFixed(1)}px, 0) scale(${scaleVal.toFixed(3)}) rotate(${rotVal.toFixed(1)}deg)`;
+          card4Ref.current.style.opacity = opVal.toFixed(2);
+          card4Ref.current.style.pointerEvents = opVal <= 0.05 ? 'none' : 'auto';
+        }
+      }
+
+      // 7. Card Last scales into prominence
       if (cardLastRef.current) {
-        const pLast = Math.max(0, Math.min(1, (progress - 0.7) / 0.3));
-        const scaleLast = 1 + pLast * 0.06;
-        cardLastRef.current.style.transform = `scale(${scaleLast.toFixed(3)})`;
+        const pLast = Math.max(0, Math.min(1, (progress - 0.68) / 0.32));
+        const scaleLast = 1 + pLast * 0.05;
+        cardLastRef.current.style.transform = `scale(${scaleLast.toFixed(3)}) translateZ(0)`;
+        cardLastRef.current.style.opacity = '1';
       }
     }
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
+    function onScroll() {
+      if (!ticking) {
+        requestAnimationFrame(updateCards);
+        ticking = true;
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    updateCards();
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', measure);
+    };
   }, []);
 
   return (
-    <div className="section">
-      <div ref={wrapperRef} className="hero-section-wrapper" style={{ height: '500vh' }}>
-        <div className="hero-section" style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden' }}>
-          {/* Infinite Marquee Loop */}
-          <div ref={marqueeRef} className="hero-text-loop-holder" style={{ display: 'flex', whiteSpace: 'nowrap' }}>
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="hero-text">
-                Legion Design Creative Agency
-              </div>
-            ))}
+    <div className="section hero-showcase-section">
+      <div ref={heroWrapperRef} className="hero-section-wrapper">
+        <div className="hero-section">
+          {/* Ambient Ticker Marquee behind the cards */}
+          <div className="hero-text-loop-holder" aria-hidden="true">
+            <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat ✦</div>
+            <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat ✦</div>
+            <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat ✦</div>
+            <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat ✦</div>
+            <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat ✦</div>
+            <div className="hero-text">Hidden Beach Resort · Greenleaf Aqua Karjat ✦</div>
+          </div>
+
+          {/* EDITORIAL HERO HEADER */}
+          <div ref={heroEditorialRef} className="hero-editorial-top">
+            <div className="hero-editorial-badge">
+              <span className="hero-badge-sparkle">✦</span>
+              <span>PRIVATE RIVERFRONT SANCTUARY · KARJAT</span>
+            </div>
+
+            <h1 className="hero-editorial-title">
+              Where Quiet River Waters<br />
+              <span className="hero-title-italic">Embrace Secluded Luxury.</span>
+            </h1>
           </div>
 
           <div className="hero-content">
-            {/* Pinned 3D Stacked Cards Deck */}
-            <div className="hero-images-holder" style={{ perspective: '1500px' }}>
-              {/* Bottom Card */}
+            {/* 5 Layered Cards Deck: Order peels from Card 01 to Card Last */}
+            <div className="hero-images-holder">
+              {/* Card Last (z-index 1): Sunset cottage with pool */}
               <div ref={cardLastRef} className="hero-images-container-last">
                 <img
-                  src="https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b08f2ad5eb7b55226ed_Blurred%20Motion%20at%20Modern%20Bus%20Stop.jpg"
+                  src="/images/resort-sunset.webp"
                   loading="eager"
-                  sizes="(max-width: 4800px) 100vw, 4800px"
-                  srcSet="https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b08f2ad5eb7b55226ed_Blurred%20Motion%20at%20Modern%20Bus%20Stop-p-500.jpg 500w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b08f2ad5eb7b55226ed_Blurred%20Motion%20at%20Modern%20Bus%20Stop-p-800.jpg 800w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b08f2ad5eb7b55226ed_Blurred%20Motion%20at%20Modern%20Bus%20Stop-p-1080.jpg 1080w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b08f2ad5eb7b55226ed_Blurred%20Motion%20at%20Modern%20Bus%20Stop-p-1600.jpg 1600w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b08f2ad5eb7b55226ed_Blurred%20Motion%20at%20Modern%20Bus%20Stop-p-2000.jpg 2000w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b08f2ad5eb7b55226ed_Blurred%20Motion%20at%20Modern%20Bus%20Stop-p-2600.jpg 2600w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b08f2ad5eb7b55226ed_Blurred%20Motion%20at%20Modern%20Bus%20Stop-p-3200.jpg 3200w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b08f2ad5eb7b55226ed_Blurred%20Motion%20at%20Modern%20Bus%20Stop.jpg 4800w"
-                  alt="Modern Bus Stop"
+                  alt="Hidden Beach Resort Sunset Cottage & Pool"
                   className="hero-image"
+                  style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                 />
+                <div className="hero-card-glass-badge">
+                  <span className="hero-card-badge-num">05</span>
+                  <span className="hero-card-badge-dot">·</span>
+                  <span className="hero-card-badge-title">Twilight Sunset Pool Villa</span>
+                </div>
               </div>
 
-              {/* Card 01 */}
+              {/* Card 01 (z-index 5): Canopy Pool Villa */}
               <div ref={card1Ref} className="hero-images-container _01">
                 <img
-                  src="https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b087597ae9ef0e7ddad_Serene%20Urban%20Setting%20with%20Elderly%20Man%20(1).avif"
+                  src="/images/card-01.jpg"
                   loading="eager"
-                  sizes="(max-width: 4800px) 100vw, 4800px"
-                  srcSet="https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b087597ae9ef0e7ddad_Serene%20Urban%20Setting%20with%20Elderly%20Man%20(1)-p-500.avif 500w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b087597ae9ef0e7ddad_Serene%20Urban%20Setting%20with%20Elderly%20Man%20(1)-p-800.avif 800w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b087597ae9ef0e7ddad_Serene%20Urban%20Setting%20with%20Elderly%20Man%20(1)-p-1080.avif 1080w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b087597ae9ef0e7ddad_Serene%20Urban%20Setting%20with%20Elderly%20Man%20(1)-p-1600.avif 1600w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b087597ae9ef0e7ddad_Serene%20Urban%20Setting%20with%20Elderly%20Man%20(1)-p-2000.avif 2000w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b087597ae9ef0e7ddad_Serene%20Urban%20Setting%20with%20Elderly%20Man%20(1)-p-2600.avif 2600w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b087597ae9ef0e7ddad_Serene%20Urban%20Setting%20with%20Elderly%20Man%20(1).avif 4800w"
-                  alt="Elderly Man"
+                  alt="The Riverfront Canopy Pool Villa"
                   className="hero-image"
+                  style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                 />
+                <div className="hero-card-glass-badge">
+                  <span className="hero-card-badge-num">01</span>
+                  <span className="hero-card-badge-dot">·</span>
+                  <span className="hero-card-badge-title">Riverfront Canopy Pool Villa</span>
+                </div>
               </div>
 
-              {/* Card 02 */}
+              {/* Card 02 (z-index 4): Plunge pool suite */}
               <div ref={card2Ref} className="hero-images-container _02">
                 <img
-                  src="https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b081bdd0ec1cde572de_Solitary%20Journey%20Scene.avif"
+                  src="/images/card-02.jpg"
                   loading="eager"
-                  sizes="(max-width: 4800px) 100vw, 4800px"
-                  srcSet="https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b081bdd0ec1cde572de_Solitary%20Journey%20Scene-p-500.avif 500w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b081bdd0ec1cde572de_Solitary%20Journey%20Scene-p-800.avif 800w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b081bdd0ec1cde572de_Solitary%20Journey%20Scene-p-1080.avif 1080w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b081bdd0ec1cde572de_Solitary%20Journey%20Scene-p-1600.avif 1600w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b081bdd0ec1cde572de_Solitary%20Journey%20Scene-p-2000.avif 2000w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b081bdd0ec1cde572de_Solitary%20Journey%20Scene.avif 4800w"
-                  alt="Solitary Journey"
+                  alt="Royal Plunge Pool Suite"
                   className="hero-image"
+                  style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                 />
+                <div className="hero-card-glass-badge">
+                  <span className="hero-card-badge-num">02</span>
+                  <span className="hero-card-badge-dot">·</span>
+                  <span className="hero-card-badge-title">Royal Plunge Pool Suite</span>
+                </div>
               </div>
 
-              {/* Card 03 */}
+              {/* Card 03 (z-index 3): Bali walkway & tropical garden */}
               <div ref={card3Ref} className="hero-images-container _03">
                 <img
-                  src="https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b07f6d1b42571e8a6a6_Moody%20Stairwell%20Portrait.avif"
+                  src="/images/card-03.jpg"
                   loading="eager"
-                  sizes="(max-width: 4800px) 100vw, 4800px"
-                  srcSet="https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b07f6d1b42571e8a6a6_Moody%20Stairwell%20Portrait-p-500.avif 500w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b07f6d1b42571e8a6a6_Moody%20Stairwell%20Portrait-p-800.avif 800w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b07f6d1b42571e8a6a6_Moody%20Stairwell%20Portrait-p-1080.avif 1080w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b07f6d1b42571e8a6a6_Moody%20Stairwell%20Portrait-p-1600.avif 1600w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b07f6d1b42571e8a6a6_Moody%20Stairwell%20Portrait-p-2000.avif 2000w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b07f6d1b42571e8a6a6_Moody%20Stairwell%20Portrait.avif 4800w"
-                  alt="Moody Stairwell"
+                  alt="Tropical Bali Teakwood Pathway"
                   className="hero-image"
+                  style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                 />
+                <div className="hero-card-glass-badge">
+                  <span className="hero-card-badge-num">03</span>
+                  <span className="hero-card-badge-dot">·</span>
+                  <span className="hero-card-badge-title">Bali Teakwood Pathway</span>
+                </div>
               </div>
 
-              {/* Card 04 */}
+              {/* Card 04 (z-index 2): Luxury bedroom suite */}
               <div ref={card4Ref} className="hero-images-container _04">
                 <img
-                  src="https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b07afd35109d0cc6568_Twilight%20Serenity%20at%20a%20Local%20Eatery.avif"
+                  src="/images/card-04.jpg"
                   loading="eager"
-                  sizes="(max-width: 4800px) 100vw, 4800px"
-                  srcSet="https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b07afd35109d0cc6568_Twilight%20Serenity%20at%20a%20Local%20Eatery-p-500.avif 500w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b07afd35109d0cc6568_Twilight%20Serenity%20at%20a%20Local%20Eatery-p-800.avif 800w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b07afd35109d0cc6568_Twilight%20Serenity%20at%20a%20Local%20Eatery-p-1080.avif 1080w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b07afd35109d0cc6568_Twilight%20Serenity%20at%20a%20Local%20Eatery-p-1600.avif 1600w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b07afd35109d0cc6568_Twilight%20Serenity%20at%20a%20Local%20Eatery-p-2000.avif 2000w, https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d15b07afd35109d0cc6568_Twilight%20Serenity%20at%20a%20Local%20Eatery.avif 4800w"
-                  alt="Twilight Serenity"
+                  alt="Master King Bedroom Suite"
                   className="hero-image"
+                  style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                 />
+                <div className="hero-card-glass-badge">
+                  <span className="hero-card-badge-num">04</span>
+                  <span className="hero-card-badge-dot">·</span>
+                  <span className="hero-card-badge-title">Master King River Suite</span>
+                </div>
               </div>
             </div>
 
-            {/* Subtitle & Interactive Button */}
-            <div className="hero-paragraph-holder">
-              <p className="title-pargraph">Legion Design Creative Agency</p>
-              <Link
-                href="#contact"
-                className="button w-inline-block"
+            {/* BOTTOM HERO DOCK */}
+            <div className="hero-bottom-dock">
+              <div className="hero-scroll-cue">
+                <div className="scroll-mouse-icon">
+                  <div className="scroll-mouse-wheel" />
+                </div>
+                <span ref={scrollCueRef} className="hero-scroll-cue-text">
+                  Scroll to explore villas 01 → 05
+                </span>
+              </div>
+
+              <a
+                href="#villas"
+                className="button w-inline-block hero-primary-btn"
                 onMouseEnter={() => setBtnHover(true)}
                 onMouseLeave={() => setBtnHover(false)}
-                style={{ overflow: 'hidden', position: 'relative' }}
+                style={{ position: 'relative', overflow: 'hidden' }}
               >
                 <div
                   className="red-circle"
                   style={{
                     transform: btnHover ? 'scale(40)' : 'scale(1)',
-                    transition: 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+                    transition: btnHover
+                      ? 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)'
+                      : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
                   }}
                 />
                 <div
                   className="button-text"
                   style={{
                     transform: btnHover ? 'translate3d(-10px, 0, 0)' : 'translate3d(0, 0, 0)',
-                    color: btnHover ? '#000000' : '#ffffff',
-                    transition: 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s ease',
+                    transition: 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
                   }}
                 >
-                  Learn More
+                  Explore Villas
                 </div>
-              </Link>
+              </a>
             </div>
           </div>
         </div>
@@ -213,4 +357,3 @@ export default function HeroSection() {
     </div>
   );
 }
-

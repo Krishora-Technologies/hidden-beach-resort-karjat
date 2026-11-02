@@ -1,15 +1,14 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
 
 const keysData = [
-  { id: 1, src: 'https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d2f721deea35389ccefbbf_Keys%201.avif', cls: '_1', x: -4, y: -6, rot: -19 },
-  { id: 2, src: 'https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d2f7218a42e83168255817_Keys%206.avif', cls: '_2', x: 0, y: -10, rot: 12 },
-  { id: 3, src: 'https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d2f7212eb0ac6549c67e31_Keys%205.avif', cls: '_3', x: 6, y: -8, rot: 18 },
-  { id: 4, src: 'https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d2f721e58c58a4e79802ce_Keys%204.avif', cls: '_4', x: 3, y: -7, rot: -15 },
-  { id: 5, src: 'https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d2f721c59aee920800b5df_Keys%202.avif', cls: '_5', x: -3, y: -9, rot: 14 },
-  { id: 6, src: 'https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d2f7219fd506c24419ae39_Keys%203.avif', cls: '_6', x: 6, y: -6, rot: 22 },
+  { id: 1, src: '/images/key-01.jpg', cls: '_1', x: -4, y: -6, rot: -19 },
+  { id: 2, src: '/images/key-02.jpg', cls: '_2', x: 0, y: -10, rot: 12 },
+  { id: 3, src: '/images/key-03.jpg', cls: '_3', x: 6, y: -8, rot: 18 },
+  { id: 4, src: '/images/key-04.jpg', cls: '_4', x: 3, y: -7, rot: -15 },
+  { id: 5, src: '/images/key-05.jpg', cls: '_5', x: -3, y: -9, rot: 14 },
+  { id: 6, src: '/images/key-06.jpg', cls: '_6', x: 6, y: -6, rot: 22 },
 ];
 
 export default function WhoWeAreSection() {
@@ -63,27 +62,31 @@ export default function WhoWeAreSection() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const headingText = 'As a hands-on agency, we design digital experiences tailored for ambitious brands.';
-  const words = headingText.split(' ');
+  const storyHeading =
+    'Tucked away in the Western Ghats, where quiet river waters embrace secluded luxury.';
+  const words = storyHeading.split(/\s+/);
 
   return (
-    <div className="section overflow-hidden">
+    <div id="story" className="section overflow-hidden">
       <div ref={wrapperRef} className="keys-wrapper">
         <div className="section-spacing">
           <div className="container">
             <div className="section-inside">
               <div className="center-text-holder">
-                <div id="w-node-_703161eb-d895-85d7-8730-7e097ce0b852-650a2375" className="gird-paragraph-holder">
+                <div
+                  id="w-node-_703161eb-d895-85d7-8730-7e097ce0b852-650a2375"
+                  className="gird-paragraph-holder"
+                >
                   <div className="fade-in-on-scroll">
-                    <div className="h6-style">(Who are we)</div>
+                    <div className="h6-style">(The Sanctuary)</div>
                   </div>
                 </div>
 
                 <div className="heading-holder">
                   <h1 ref={titleRef} className="animated-title">
-                    {words.map((w, i) => (
+                    {words.map((w, idx) => (
                       <span
-                        key={i}
+                        key={idx}
                         className="split-word"
                         style={{
                           display: 'inline-block',
@@ -98,16 +101,23 @@ export default function WhoWeAreSection() {
                   </h1>
                 </div>
 
-                {/* 3D Floating Keys */}
+                {/* 6 Aesthetic detail cutouts & photography */}
                 <div className="keys-holder">
                   {keysData.map((k, idx) => (
                     <div
                       key={k.id}
                       ref={(el) => (keysRef.current[idx] = el)}
                       className={`keys-container ${k.cls}`}
-                      style={{ transition: 'transform 0.15s ease-out' }}
+                      style={{
+                        transition: 'transform 0.15s ease-out',
+                      }}
                     >
-                      <img src={k.src} loading="lazy" alt={`Key ${k.id}`} className="keys" />
+                      <img
+                        src={k.src}
+                        loading="lazy"
+                        alt={`Resort detail ${k.id}`}
+                        className="keys"
+                      />
                     </div>
                   ))}
                 </div>
@@ -115,36 +125,40 @@ export default function WhoWeAreSection() {
                 <div className="paragraph-and-button-holder">
                   <div className="fade-in-on-scroll">
                     <p>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum
-                      tristique.
+                      Hidden Beach Resort by Greenleaf Aqua was designed as an antidote to city chaos.
+                      Just two hours from Mumbai and Pune, discover a private haven where mornings
+                      begin with cool river mist, afternoons drift beside your plunge pool, and
+                      nights glow under clear Karjat skies.
                     </p>
                   </div>
+
                   <div className="fade-in-on-scroll">
-                    <Link
-                      href="#contact"
+                    <a
+                      href="#pricing"
                       className="button w-inline-block"
                       onMouseEnter={() => setBtnHover(true)}
                       onMouseLeave={() => setBtnHover(false)}
-                      style={{ overflow: 'hidden', position: 'relative' }}
+                      style={{ position: 'relative', overflow: 'hidden' }}
                     >
                       <div
                         className="red-circle"
                         style={{
                           transform: btnHover ? 'scale(40)' : 'scale(1)',
-                          transition: 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+                          transition: btnHover
+                            ? 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)'
+                            : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
                         }}
                       />
                       <div
                         className="button-text"
                         style={{
                           transform: btnHover ? 'translate3d(-10px, 0, 0)' : 'translate3d(0, 0, 0)',
-                          color: btnHover ? '#000000' : '#ffffff',
-                          transition: 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s ease',
+                          transition: 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
                         }}
                       >
-                        Learn More
+                        Reserve Your Stay
                       </div>
-                    </Link>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -156,4 +170,3 @@ export default function WhoWeAreSection() {
     </div>
   );
 }
-

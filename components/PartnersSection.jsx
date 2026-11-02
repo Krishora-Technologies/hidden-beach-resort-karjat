@@ -2,17 +2,14 @@
 
 import { useEffect, useRef } from 'react';
 
-const logos = [
-  'https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d2d7b1878d0af8f0609033_Logo%2002.svg',
-  'https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d2d7b1af280dd7bb8b0883_Logo%2002-1.svg',
-  'https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d2d7b17d1d1b4ad15349c4_Logo%206.svg',
-  'https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d2d7b1f1fc97b5be607f6b_Logo%2010.svg',
-  'https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d2d7b120c3edb107541f2e_Logo%2004.svg',
-  'https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d2d7b17d1d1b4ad15349c4_Logo%206.svg',
-  'https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d2d7b1f1fc97b5be607f6b_Logo%2010.svg',
-  'https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d2d7b1878d0af8f0609033_Logo%2002.svg',
-  'https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d2d7b1af280dd7bb8b0883_Logo%2002-1.svg',
-  'https://cdn.prod.website-files.com/68d144a80d497ed4650a22b0/68d2d7b17d1d1b4ad15349c4_Logo%206.svg',
+const resortHighlights = [
+  'Private Riverfront Access',
+  'Heated Plunge Pools',
+  '100% Pet Friendly',
+  '2 Hrs From Mumbai & Pune',
+  'Farm-To-Table Dining',
+  'Riverside Bonfires',
+  'Forest Canopy Trails',
 ];
 
 export default function PartnersSection() {
@@ -44,27 +41,40 @@ export default function PartnersSection() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Continuous Partner Logo Ticker
+  // Continuous Partner Highlight Ticker
   useEffect(() => {
     let pos = 0;
+    let lastTime = performance.now();
     let animId;
-    const el = marqueeRef.current;
-    if (!el) return;
+    const holders = marqueeRef.current ? marqueeRef.current.querySelectorAll('.partner-container') : [];
+    if (!holders.length) return;
 
-    function tick() {
-      pos -= 0.65;
-      const child = el.firstElementChild;
-      const w = child ? child.offsetWidth : 1200;
-      if (Math.abs(pos) >= w) pos = 0;
-      el.style.transform = `translate3d(${pos.toFixed(1)}px, 0, 0)`;
+    let totalW = holders[0].scrollWidth || 600;
+
+    function tick(now) {
+      const currentTime = now || performance.now();
+      const dt = Math.min((currentTime - lastTime) / 1000, 0.05);
+      lastTime = currentTime;
+
+      pos -= 45 * dt;
+      if (totalW > 0 && Math.abs(pos) >= totalW) {
+        pos += totalW;
+      }
+
+      holders.forEach((h) => {
+        h.style.transform = `translate3d(${pos.toFixed(2)}px, 0, 0)`;
+      });
+
       animId = requestAnimationFrame(tick);
     }
+
     animId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(animId);
   }, []);
 
-  const headingText = 'We team up with visionary brands to create work that leaves a lasting mark.';
-  const words = headingText.split(' ');
+  const headingText =
+    'Curated with pure attention to nature, secluded river luxury, and barefoot relaxation.';
+  const words = headingText.split(/\s+/);
 
   return (
     <div className="section overflow-hidden">
@@ -74,9 +84,9 @@ export default function PartnersSection() {
             <div className="grid-title">
               <div className="grid-title-holder">
                 <h3 ref={titleRef} className="animated-title">
-                  {words.map((w, i) => (
+                  {words.map((w, idx) => (
                     <span
-                      key={i}
+                      key={idx}
                       className="split-word"
                       style={{
                         display: 'inline-block',
@@ -90,32 +100,36 @@ export default function PartnersSection() {
                   ))}
                 </h3>
               </div>
-              <div id="w-node-_40c7b465-0b64-c4e8-61ee-98350ac02c59-650a2375" className="gird-paragraph-holder">
+              <div
+                id="w-node-_40c7b465-0b64-c4e8-61ee-98350ac02c59-650a2375"
+                className="gird-paragraph-holder"
+              >
                 <div className="fade-in-on-scroll">
-                  <div className="h6-style">(they love us btw)</div>
+                  <div className="h6-style">(Why guests love us)</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Continuous Logo Ticker */}
-        <div className="partners-holder" style={{ overflow: 'hidden' }}>
-          <div ref={marqueeRef} style={{ display: 'flex', whiteSpace: 'nowrap' }}>
-            <div className="partner-container" style={{ display: 'flex', flexShrink: 0 }}>
-              {logos.map((src, i) => (
-                <div key={i} className="partner">
-                  <img src={src} loading="lazy" alt="Partner Logo" className="partner-logo" />
-                </div>
-              ))}
-            </div>
-            <div className="partner-container" style={{ display: 'flex', flexShrink: 0 }}>
-              {logos.map((src, i) => (
-                <div key={`dup-${i}`} className="partner">
-                  <img src={src} loading="lazy" alt="Partner Logo" className="partner-logo" />
-                </div>
-              ))}
-            </div>
+        <div ref={marqueeRef} className="partners-holder">
+          <div className="partner-container">
+            {resortHighlights.map((item, idx) => (
+              <div key={idx} className="partner">
+                <span>
+                  <span className="partner-sparkle">✦</span> {item}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="partner-container" aria-hidden="true">
+            {resortHighlights.map((item, idx) => (
+              <div key={`dup-${idx}`} className="partner">
+                <span>
+                  <span className="partner-sparkle">✦</span> {item}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -124,4 +138,3 @@ export default function PartnersSection() {
     </div>
   );
 }
-

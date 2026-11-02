@@ -9,6 +9,13 @@ export default function CurtainPreloader() {
   const [loaderOpacity, setLoaderOpacity] = useState(1);
 
   useEffect(() => {
+    function onScrollDismiss() {
+      if (window.scrollY > 20) {
+        setComplete(true);
+      }
+    }
+    window.addEventListener('scroll', onScrollDismiss, { passive: true });
+
     // 1. Fill loading bar
     const progressTimer = setTimeout(() => {
       setLoaderProgress(100);
@@ -18,7 +25,7 @@ export default function CurtainPreloader() {
     const curtainTimer = setTimeout(() => {
       setLoaderOpacity(0);
 
-      // Stagger 5 columns
+      // Stagger 5 columns with exact Webflow cubic bezier easing
       [0, 1, 2, 3, 4].forEach((idx) => {
         setTimeout(() => {
           setCurtainHeights((prev) => {
@@ -36,6 +43,7 @@ export default function CurtainPreloader() {
     }, 2200);
 
     return () => {
+      window.removeEventListener('scroll', onScrollDismiss);
       clearTimeout(progressTimer);
       clearTimeout(curtainTimer);
       clearTimeout(finishTimer);
@@ -106,4 +114,3 @@ export default function CurtainPreloader() {
     </div>
   );
 }
-
